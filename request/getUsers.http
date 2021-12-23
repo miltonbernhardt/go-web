@@ -41,5 +41,5 @@ Accept: application/json
 
 ###
 
-GET http://localhost:8080/users?firstname=John&lastname=Kim&age=22&height=158&email=ki&is_active=false&created_date=19/06/2021
+GET http://localhost:8080/users?firstname=John&lastname=Kim&age=22&height=158&email=ki&active=false&created_date=19/06/2021
 Accept: application/json

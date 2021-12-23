@@ -1,4 +1,4 @@
-package main
+package users
 
 import (
 	"errors"
@@ -29,7 +29,7 @@ func GetField(v interface{}, name string) (interface{}, error) {
 	// Elem returns the value that the interface v contains or that the pointer v points to. It panics if v's Kind is not Interface or Ptr. It returns the zero Value if v is nil.
 	rv = rv.Elem()
 
-	// Obtengo el campo de la estruct a partir de su nombre
+	// Obtengo el campo de la struct a partir de su nombre
 	fv := rv.FieldByName(name)
 	// Verifico que el campo exista dentro de mi estructura
 	if !fv.IsValid() {
