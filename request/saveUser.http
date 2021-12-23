@@ -1,0 +1,58 @@
+// request erronea por campos faltantes
+
+POST http://localhost:8080/users/save
+Content-Type: application/json
+Token: bearer 12345
+
+{
+  "firstname": "Milton",
+  "email": "milton.bernhard@mercadolibre.com",
+  "age": 24,
+  "active": false
+}
+
+###
+//funcion valida pero sin token
+POST http://localhost:8080/users/save
+Content-Type: application/json
+
+{
+  "firstname": "Milton",
+  "lastname": "Bernhardt",
+  "email": "milton.bernhard@mercadolibre.com",
+  "age": 24,
+  "height": 183,
+  "active": false
+}
+
+###
+
+//funcion valida pero con token invalido
+POST http://localhost:8080/users/save
+Content-Type: application/json
+Token: bearer 1234567
+
+{
+"firstname": "Milton",
+"lastname": "Bernhardt",
+"email": "milton.bernhard@mercadolibre.com",
+"age": 24,
+"height": 183,
+"active": false
+}
+
+###
+//funcion valida pero con token
+POST http://localhost:8080/users/save
+Content-Type: application/json
+Token: bearer 12345
+
+{
+  "firstname": "Milton",
+  "lastname": "Bernhardt",
+  "email": "milton.bernhard@mercadolibre.com",
+  "age": 24,
+  "height": 183,
+  "active": false
+}
+

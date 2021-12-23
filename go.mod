@@ -1,4 +1,4 @@
-module github.com/miltonbernhardt/ejercicios-clases-go-web
+module github.com/miltonbernhardt/go-web
 
 go 1.17
 
