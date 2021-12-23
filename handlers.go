@@ -66,6 +66,7 @@ func GetUsers(ctx *gin.Context) {
 
 	if len(users) == 0 {
 		ctx.String(404, "error: no se encontraron usuarios que coincidan con la búsqueda")
+		ctx.Abort()
 		return
 	}
 
@@ -78,6 +79,7 @@ func GetUserById(ctx *gin.Context) {
 	users, err := GetUsersAsSlice()
 	if err != nil {
 		ctx.String(500, fmt.Sprint(err))
+		ctx.Abort()
 		return
 	}
 
@@ -86,6 +88,7 @@ func GetUserById(ctx *gin.Context) {
 	user, err := GetUserByID(users, id)
 	if err != nil {
 		ctx.String(404, fmt.Sprint(err))
+		ctx.Abort()
 		return
 	}
 
