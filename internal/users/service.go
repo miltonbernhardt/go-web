@@ -26,7 +26,6 @@ func NewService(r Repository) Service {
 }
 
 /*####################### GET #######################*/
-// todo generalizar los get username by field - usar reflect
 
 func (s *service) GetAll() ([]User, error) {
 	return s.repository.GetAll()
@@ -47,88 +46,6 @@ func (s *service) GetByID(id int64) (User, error) {
 
 	return User{}, fmt.Errorf("no se encontro un usuario con dicho id = %v", id)
 }
-
-//func (s *service) GetByFirstName(users []User, firstname string) []User {
-//	var sliceUsers []User
-//
-//	for _, user := range users {
-//		if strings.Contains(user.Firstname, firstname) {
-//			sliceUsers = append(sliceUsers, user)
-//		}
-//	}
-//
-//	return sliceUsers
-//}
-//
-//func (s *service) GetByLastname(users []User, lastname string) []User {
-//	var sliceUsers []User
-//
-//	for _, user := range users {
-//		if strings.Contains(user.Lastname, lastname) {
-//			sliceUsers = append(sliceUsers, user)
-//		}
-//	}
-//	return sliceUsers
-//}
-//
-//func (s *service) GetByEmail(users []User, email string) []User {
-//	var sliceUsers []User
-//
-//	for _, user := range users {
-//		if strings.Contains(user.Email, email) {
-//			sliceUsers = append(sliceUsers, user)
-//		}
-//	}
-//	return sliceUsers
-//}
-//
-//func (s *service) GetByCreatedDate(users []User, createdDate string) []User {
-//	var sliceUsers []User
-//
-//	for _, user := range users {
-//		if user.CreatedDate == createdDate {
-//			sliceUsers = append(sliceUsers, user)
-//		}
-//	}
-//	return sliceUsers
-//}
-//
-//func (s *service) GetByIsActive(users []User, isActive bool) []User {
-//	var sliceUsers []User
-//
-//	for _, user := range users {
-//		if user.Active == isActive {
-//			sliceUsers = append(sliceUsers, user)
-//		}
-//	}
-//	return sliceUsers
-//}
-//
-//func (s *service) GetByAge(users []User, age int64) []User {
-//	var sliceUsers []User
-//
-//	for _, user := range users {
-//		if user.Age == age {
-//			sliceUsers = append(sliceUsers, user)
-//		}
-//	}
-//	return sliceUsers
-//}
-//
-//func (s *service) GetByHeight(users []User, height int64) []User {
-//	var sliceUsers []User
-//
-//	for _, user := range users {
-//		if user.Height == height {
-//			sliceUsers = append(sliceUsers, user)
-//		}
-//	}
-//	return sliceUsers
-//}
-
-//func (s *service) GetAllByField(users []User, fieldType string, value interface{}) []User {
-//
-//}
 
 func (s *service) GetAllByField(users []User, fieldType UserTypes, value interface{}) []User {
 	var sliceUsers []User

@@ -3,10 +3,9 @@ package handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/miltonbernhardt/go-web/internal/users"
-	"log"
 	"net/http"
-	"reflect"
 	"strconv"
 )
 
@@ -111,42 +110,14 @@ func (c *User) SaveUser(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&newUser); err != nil {
 
-		errReflected := reflect.ValueOf(&err)
-		errReflected = errReflected.Elem()
-		field := errReflected.FieldByName("Key")
+		validatorErrors := err.(validator.ValidationErrors)
 
-		//todo seguir
+		errorsToPrint := map[string]string{}
+		for _, fieldError := range validatorErrors {
+			errorsToPrint[fieldError.Field()] = fmt.Sprintf("el campo %v es requerido", fieldError.Field())
+		}
 
-		//var valueToCompare interface{}
-		//if field.IsValid() && field.CanSet() {
-		//	switch field.Kind() {
-		//	case reflect.Int64:
-		//		valueToCompare = field.Interface().(int64)
-		//		if valueToCompare == value {
-		//			sliceUsers = append(sliceUsers, user)
-		//		}
-		//	case reflect.Bool:
-		//		valueToCompare = field.Interface().(bool)
-		//		if valueToCompare == value {
-		//			sliceUsers = append(sliceUsers, user)
-		//		}
-		//	case reflect.String:
-		//		valueToCompare = field.Interface().(string)
-		//		if valueToCompare == value || strings.Contains(valueToCompare.(string), value.(string)) {
-		//			sliceUsers = append(sliceUsers, user)
-		//		}
-		//	}
-		//
-		//}
-
-
-
-
-
-		log.Printf("errReflected: %v\n", field)
-		log.Printf("errReflected: %v\n", errReflected)
-		log.Printf("error: %v\n", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": errorsToPrint})
 		ctx.Abort()
 		return
 	}

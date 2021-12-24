@@ -7,7 +7,7 @@ type User struct {
 	Email       string `json:"email" binding:"required"`
 	Age         int64  `json:"age" binding:"required"`
 	Height      int64  `json:"height" binding:"required"`
-	Active      bool   `json:"active"` //todo problemas para required bool con valor false
+	Active      bool   `json:"active"`
 	CreatedDate string `json:"created_date"`
 }
 
