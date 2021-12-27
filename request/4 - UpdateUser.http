@@ -1,0 +1,43 @@
+// request erronea por campos faltantes
+
+PUT http://localhost:8080/users/100
+Content-Type: application/json
+Token: bearer 12345
+
+{
+  "firstname": "NombreActualizado",
+  "age": 34,
+  "active": true,
+  "height": 190,
+  "lastname": "apellidoActualizado"
+}
+
+###
+//funcion valida pero sin token
+PUT http://localhost:8080/users/100
+Content-Type: application/json
+
+{
+  "firstname": "NombreActualizado",
+  "email": "NombreActualizado@mercadolibre.com",
+  "age": 34,
+  "active": true,
+  "height": 190,
+  "lastname": "apellidoActualizado"
+}
+
+###
+//funcion valida
+PUT http://localhost:8080/users/100
+Content-Type: application/json
+Token: bearer 12345
+
+{
+  "firstname": "NombreActualizado",
+  "email": "NombreActualizado@mercadolibre.com",
+  "age": 34,
+  "active": true,
+  "height": 190,
+  "lastname": "apellidoActualizado"
+}
+

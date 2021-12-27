@@ -1,0 +1,16 @@
+// request erronea por ID erroneo
+DELETE  http://localhost:8080/users/101
+Content-Type: application/json
+Token: bearer 12345
+
+###
+//funcion valida pero sin token
+DELETE http://localhost:8080/users/100
+Content-Type: application/json
+
+###
+//funcion valida
+DELETE http://localhost:8080/users/100
+Content-Type: application/json
+Token: bearer 12345
+

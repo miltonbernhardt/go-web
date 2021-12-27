@@ -1,4 +1,4 @@
-package users
+package domain
 
 type User struct {
 	Id          int64  `json:"id"`
@@ -9,6 +9,7 @@ type User struct {
 	Height      int64  `json:"height" binding:"required"`
 	Active      bool   `json:"active"`
 	CreatedDate string `json:"created_date"`
+	DeletedDate string `json:"-"`
 }
 
 type UserTypes string

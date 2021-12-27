@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"time"
 )
 
 type Fecha struct {
@@ -58,22 +59,7 @@ func GetField(v interface{}, name string) (interface{}, error) {
 	return fv, nil
 }
 
-//func main() {
-//	p := Persona{Nombre: "Juan", Altura: 175}
-//
-//	listaDeCamposRequeridos := []string{"Nombre", "Apellido"}
-//
-//	// nombreDelCampo := "Nombre"
-//
-//	for _, nombreDelCampo := range listaDeCamposRequeridos {
-//
-//		value, err := GetField(&p, nombreDelCampo)
-//		if err != nil {
-//			fmt.Printf("%s", err)
-//			return
-//
-//		}
-//		fmt.Printf("el valor del campo %s es %v\n", nombreDelCampo, value)
-//	}
-//
-//}
+func GetNowAsString() string {
+	t := time.Now()
+	return t.Format("02/01/2006 15:04:05")
+}

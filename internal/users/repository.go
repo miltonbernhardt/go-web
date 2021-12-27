@@ -3,20 +3,27 @@ package users
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/miltonbernhardt/go-web/internal/domain"
 	"os"
 )
 
-var users []User
+var users []domain.User
 
 type Repository interface {
-	GetAll() ([]User, error)
-	Store(user User) (User, error)
+	GetAll() ([]domain.User, error)
+	Store(user domain.User) domain.User
+	Update(id int64, user domain.User) (domain.User, error)
+	Delete(id int64) error
+	UpdateFields(id int64, lastname string, age int64) (domain.User, error)
 }
 
 type repository struct{}
 
 func NewRepository() Repository {
-	return &repository{}
+	repo := &repository{}
+	_, _ = repo.GetAll()
+	return repo
 }
 
 func (r *repository) getUsersAsJson() ([]byte, error) {
@@ -29,7 +36,7 @@ func (r *repository) getUsersAsJson() ([]byte, error) {
 	return usersJson, nil
 }
 
-func (r *repository) GetAll() ([]User, error) {
+func (r *repository) GetAll() ([]domain.User, error) {
 	if users == nil {
 		usersJson, err := r.getUsersAsJson()
 
@@ -47,12 +54,59 @@ func (r *repository) GetAll() ([]User, error) {
 	return users, nil
 }
 
-func (r *repository) Store(user User) (User, error) {
+func (r *repository) Store(user domain.User) domain.User {
+	user.CreatedDate = GetNowAsString()
+
 	lastIndex := len(users) - 1
 	lastId := (users[lastIndex].Id) + 1
 	user.Id = lastId
 
 	users = append(users, user)
 
-	return user, nil
+	return user
+}
+
+func (r *repository) Update(id int64, userToUpdate domain.User) (domain.User, error) {
+	for i := range users {
+		if users[i].Id == id {
+			users[i].Active = userToUpdate.Active
+			users[i].Age = userToUpdate.Age
+			users[i].Email = userToUpdate.Email
+			users[i].Firstname = userToUpdate.Firstname
+			users[i].Height = userToUpdate.Height
+			users[i].Lastname = userToUpdate.Lastname
+			return users[i], nil
+		}
+	}
+
+	return domain.User{}, fmt.Errorf("no se encontro un usuario con dicho id = %v", id)
+
+}
+
+func (r *repository) Delete(id int64) error {
+	for i := range users {
+		if users[i].Id == id && users[i].DeletedDate == "" {
+			users[i].DeletedDate = GetNowAsString()
+			return nil
+		}
+	}
+
+	return fmt.Errorf("usuario %d no encontrado", id)
+}
+
+func (r *repository) UpdateFields(id int64, lastname string, age int64) (domain.User, error) {
+	for i := range users {
+		if users[i].Id == id {
+			if age != 0 {
+				users[i].Age = age
+			}
+			if lastname != "" {
+				users[i].Lastname = lastname
+			}
+			return users[i], nil
+		}
+	}
+
+	return domain.User{}, fmt.Errorf("no se encontro un usuario con dicho id = %v", id)
+
 }

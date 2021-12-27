@@ -1,0 +1,72 @@
+// request erronea por campos faltantes
+PATCH http://localhost:8080/users/100
+Content-Type: application/json
+Token: bearer 12345
+
+{
+  "age": 34,
+  "lastname": "apellidoActualizado"
+}
+
+###
+//funcion invalida por id erroneo
+PATCH http://localhost:8080/users/101
+Content-Type: application/json
+Token: bearer 12345
+
+{
+  "age": 34,
+  "lastname": "apellidoActualizado"
+}
+
+###
+//funcion invalida por falta de campos
+PATCH http://localhost:8080/users/101
+Content-Type: application/json
+Token: bearer 12345
+
+{
+
+}
+
+
+###
+//funcion valida pero sin token
+PATCH http://localhost:8080/users/100
+Content-Type: application/json
+
+{
+  "age": 34,
+  "lastname": "apellidoActualizado"
+}
+
+###
+//funcion valida #1
+PATCH http://localhost:8080/users/100
+Content-Type: application/json
+Token: bearer 12345
+
+{
+  "age": 34,
+  "lastname": "apellidoActualizado"
+}
+
+###
+//funcion valida #2
+PATCH http://localhost:8080/users/102
+Content-Type: application/json
+Token: bearer 12345
+
+{
+  "age": 34
+}
+
+###
+//funcion valida #3
+PATCH http://localhost:8080/users/104
+Content-Type: application/json
+Token: bearer 12345
+
+{
+  "lastname": "apellidoActualizado"
+}

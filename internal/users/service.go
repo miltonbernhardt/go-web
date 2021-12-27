@@ -2,18 +2,21 @@ package users
 
 import (
 	"fmt"
+	"github.com/miltonbernhardt/go-web/internal/domain"
 	"reflect"
 	"strings"
-	"time"
 )
 
 var TokenAuth = "bearer 12345"
 
 type Service interface {
-	GetByID(id int64) (User, error)
-	GetAll() ([]User, error)
-	Store(user User) (User, error)
-	GetAllByField(users []User, attribute UserTypes, value interface{}) []User
+	GetAll() ([]domain.User, error)
+	GetAllByField(users []domain.User, attribute domain.UserTypes, value interface{}) []domain.User
+	GetByID(id int64) (domain.User, error)
+	Store(user domain.User) domain.User
+	Update(id int64, user domain.User) (domain.User, error)
+	UpdateFields(id int64, lastname string, age int64) (domain.User, error)
+	Delete(id int64) error
 }
 type service struct {
 	repository Repository
@@ -27,15 +30,15 @@ func NewService(r Repository) Service {
 
 /*####################### GET #######################*/
 
-func (s *service) GetAll() ([]User, error) {
+func (s *service) GetAll() ([]domain.User, error) {
 	return s.repository.GetAll()
 }
 
-func (s *service) GetByID(id int64) (User, error) {
+func (s *service) GetByID(id int64) (domain.User, error) {
 	users, err := s.GetAll()
 
 	if err != nil {
-		return User{}, err
+		return domain.User{}, err
 	}
 
 	for _, user := range users {
@@ -44,11 +47,11 @@ func (s *service) GetByID(id int64) (User, error) {
 		}
 	}
 
-	return User{}, fmt.Errorf("no se encontro un usuario con dicho id = %v", id)
+	return domain.User{}, fmt.Errorf("no se encontro un usuario con dicho id = %v", id)
 }
 
-func (s *service) GetAllByField(users []User, fieldType UserTypes, value interface{}) []User {
-	var sliceUsers []User
+func (s *service) GetAllByField(users []domain.User, fieldType domain.UserTypes, value interface{}) []domain.User {
+	var sliceUsers []domain.User
 	fmt.Printf("\tCampo: %s - valor: %v\n", fieldType, value)
 
 	for _, user := range users {
@@ -86,10 +89,24 @@ func (s *service) GetAllByField(users []User, fieldType UserTypes, value interfa
 
 /*####################### POST #######################*/
 
-func (s *service) Store(user User) (User, error) {
-	t := time.Now()
-	user.CreatedDate = t.Format("02/01/2006")
-	fmt.Printf("\nNew user: %v\n", user)
-
+func (s *service) Store(user domain.User) domain.User {
 	return s.repository.Store(user)
+}
+
+/*####################### PUT #######################*/
+
+func (s *service) Update(id int64, user domain.User) (domain.User, error) {
+	return s.repository.Update(id, user)
+}
+
+/*####################### DELETE #######################*/
+
+func (s *service) Delete(id int64) error {
+	return s.repository.Delete(id)
+}
+
+/*####################### PATCH #######################*/
+
+func (s *service) UpdateFields(id int64, lastname string, age int64) (domain.User, error) {
+	return s.repository.UpdateFields(id, lastname, age)
 }
