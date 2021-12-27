@@ -9,6 +9,7 @@ import (
 	"github.com/miltonbernhardt/go-web/internal/users"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -103,7 +104,7 @@ func (c *user) GetById(ctx *gin.Context) {
 	user, err := c.service.GetByID(id)
 
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": fmt.Errorf("#{err}")}) //todo ver
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		ctx.Abort()
 		return
 	}
@@ -112,7 +113,7 @@ func (c *user) GetById(ctx *gin.Context) {
 }
 
 func (c *user) Save(ctx *gin.Context) {
-	if !(ctx.GetHeader("token") != "" && ctx.GetHeader("token") == users.TokenAuth) {
+	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
 		ctx.Abort()
 		return
@@ -134,14 +135,20 @@ func (c *user) Save(ctx *gin.Context) {
 		return
 	}
 
-	newUser = c.service.Store(newUser)
+	newUser, err := c.service.Store(newUser)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.Abort()
+		return
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{"data": newUser})
 }
 
 func (c *user) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if !(ctx.GetHeader("token") != "" && ctx.GetHeader("token") == users.TokenAuth) {
+		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
 			ctx.Abort()
 			return
@@ -180,7 +187,7 @@ func (c *user) Update() gin.HandlerFunc {
 
 func (c *user) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if !(ctx.GetHeader("token") != "" && ctx.GetHeader("token") == users.TokenAuth) {
+		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
 			ctx.Abort()
 			return
@@ -209,7 +216,7 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 	}
 
 	return func(ctx *gin.Context) {
-		if !(ctx.GetHeader("token") != "" && ctx.GetHeader("token") == users.TokenAuth) {
+		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
 			ctx.Abort()
 			return

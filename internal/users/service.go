@@ -7,13 +7,11 @@ import (
 	"strings"
 )
 
-var TokenAuth = "bearer 12345"
-
 type Service interface {
 	GetAll() ([]domain.User, error)
 	GetAllByField(users []domain.User, attribute domain.UserTypes, value interface{}) []domain.User
 	GetByID(id int64) (domain.User, error)
-	Store(user domain.User) domain.User
+	Store(user domain.User) (domain.User, error)
 	Update(id int64, user domain.User) (domain.User, error)
 	UpdateFields(id int64, lastname string, age int64) (domain.User, error)
 	Delete(id int64) error
@@ -47,13 +45,11 @@ func (s *service) GetByID(id int64) (domain.User, error) {
 		}
 	}
 
-	return domain.User{}, fmt.Errorf("no se encontro un usuario con dicho id = %v", id)
+	return domain.User{}, fmt.Errorf("no se encontró el usuario %v, bienpuede estar eliminado o dado de baja", id)
 }
 
 func (s *service) GetAllByField(users []domain.User, fieldType domain.UserTypes, value interface{}) []domain.User {
 	var sliceUsers []domain.User
-	fmt.Printf("\tCampo: %s - valor: %v\n", fieldType, value)
-
 	for _, user := range users {
 
 		userReflected := reflect.ValueOf(&user)
@@ -83,13 +79,12 @@ func (s *service) GetAllByField(users []domain.User, fieldType domain.UserTypes,
 		}
 	}
 
-	fmt.Printf("\tcantidad de usuarios que cumplen: %v\n", len(sliceUsers))
 	return sliceUsers
 }
 
 /*####################### POST #######################*/
 
-func (s *service) Store(user domain.User) domain.User {
+func (s *service) Store(user domain.User) (domain.User, error) {
 	return s.repository.Store(user)
 }
 

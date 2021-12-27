@@ -9,7 +9,7 @@ type User struct {
 	Height      int64  `json:"height" binding:"required"`
 	Active      bool   `json:"active"`
 	CreatedDate string `json:"created_date"`
-	DeletedDate string `json:"-"`
+	DeletedDate string `json:"deleted_date"`
 }
 
 type UserTypes string
@@ -23,4 +23,5 @@ const (
 	Height      UserTypes = "Height"
 	Active      UserTypes = "Active"
 	CreatedDate UserTypes = "CreatedDate"
+	DeletedDate UserTypes = "DeletedDate"
 )
