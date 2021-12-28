@@ -38,13 +38,11 @@ func (c *user) GetAll(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, web.NewResponse(http.StatusInternalServerError, fmt.Sprint(err)))
-		ctx.Abort()
 		return
 	}
 
 	if len(allUsers) == 0 {
 		ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, "no se encontraron usuarios que coincidan con la búsqueda"))
-		ctx.Abort()
 		return
 	}
 
@@ -106,7 +104,6 @@ func (c *user) GetById(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
-		ctx.Abort()
 		return
 	}
 
@@ -116,7 +113,6 @@ func (c *user) GetById(ctx *gin.Context) {
 func (c *user) Save(ctx *gin.Context) {
 	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 		ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
-		ctx.Abort()
 		return
 	}
 
@@ -132,7 +128,6 @@ func (c *user) Save(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, errorsToPrint))
-		ctx.Abort()
 		return
 	}
 
@@ -140,7 +135,6 @@ func (c *user) Save(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, web.NewResponse(http.StatusInternalServerError, err.Error()))
-		ctx.Abort()
 		return
 	}
 
@@ -151,7 +145,6 @@ func (c *user) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 			ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
-			ctx.Abort()
 			return
 		}
 
@@ -165,7 +158,6 @@ func (c *user) Update() gin.HandlerFunc {
 			}
 
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, errorsToPrint))
-			ctx.Abort()
 			return
 		}
 
@@ -177,7 +169,6 @@ func (c *user) Update() gin.HandlerFunc {
 		updatedUser, err = c.service.Update(id, updatedUser)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
-			ctx.Abort()
 			return
 		}
 
@@ -189,7 +180,6 @@ func (c *user) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 			ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
-			ctx.Abort()
 			return
 		}
 
@@ -201,7 +191,6 @@ func (c *user) Delete() gin.HandlerFunc {
 		err = c.service.Delete(id)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
-			ctx.Abort()
 			return
 		}
 
@@ -218,7 +207,6 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 			ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
-			ctx.Abort()
 			return
 		}
 
@@ -227,13 +215,13 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, "invalid ID"))
+			return
 		}
 
 		bodyAsByteArray, _ := ioutil.ReadAll(ctx.Request.Body)
 		err = json.Unmarshal(bodyAsByteArray, &fields)
 		if err != nil || (fields.Lastname == "" && fields.Age == 0) {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, fmt.Sprintf("modificación invalida del usuario %d", id)))
-			ctx.Abort()
 			return
 		}
 
@@ -241,7 +229,6 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
-			ctx.Abort()
 			return
 		}
 
