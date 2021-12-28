@@ -1,6 +1,6 @@
 // request erronea por campos faltantes
 
-POST http://localhost:8080/users/save
+POST http://localhost:8080/users
 Content-Type: application/json
 Token: bearer 12345
 
@@ -13,7 +13,7 @@ Token: bearer 12345
 
 ###
 //funcion valida pero sin token
-POST http://localhost:8080/users/save
+POST http://localhost:8080/users
 Content-Type: application/json
 
 {
@@ -28,7 +28,7 @@ Content-Type: application/json
 ###
 
 //funcion valida pero con token invalido
-POST http://localhost:8080/users/save
+POST http://localhost:8080/users
 Content-Type: application/json
 Token: bearer 1234567
 
@@ -43,7 +43,7 @@ Token: bearer 1234567
 
 ###
 //funcion valida pero con token
-POST http://localhost:8080/users/save
+POST http://localhost:8080/users/
 Content-Type: application/json
 Token: bearer 12345
 

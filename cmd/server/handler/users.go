@@ -14,10 +14,10 @@ import (
 	"strconv"
 )
 
-type User interface {
+type UserController interface {
 	GetAll(ctx *gin.Context)
 	GetById(ctx *gin.Context)
-	Save(ctx *gin.Context)
+	Store(ctx *gin.Context)
 	Update() gin.HandlerFunc
 	Delete() gin.HandlerFunc
 	UpdateFields() gin.HandlerFunc
@@ -27,13 +27,27 @@ type user struct {
 	service users.Service
 }
 
-func NewUserController(s users.Service) User {
+func NewUserController(s users.Service) UserController {
 	return &user{
 		service: s,
 	}
 }
 
+//ListUsers godoc
+//@Summary List users
+//@Tags Users
+//@Description get users
+//@Accept json
+//@Produce json
+//@Param token header string true "token"
+//@Success 200 {object} web.Response
+//@Router /users [get]
 func (c *user) GetAll(ctx *gin.Context) {
+	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
+		ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
+		return
+	}
+
 	allUsers, err := c.getUsersByQuery(ctx)
 
 	if err != nil {
@@ -93,6 +107,20 @@ func (c *user) getUsersByQuery(ctx *gin.Context) ([]domain.User, error) {
 	return usersSlice, nil
 }
 
+
+//GetById 		godoc
+//@Summary 		GetById user
+//@Tags 		Users
+//@Description 	get user by id
+//@Accept 		json
+//@Produce 		json
+//@Param 		token header string true "token"
+//@Param 		id 		path 		string true "id user"
+//@Success 		201 {object} web.Response
+//@Failure     	400  	{object}  	web.Error
+//@Failure     	401  	{object}  	web.Error
+//@Failure      404  	{object}  	web.Error
+//@Router 		/users/{id} [get]
 func (c *user) GetById(ctx *gin.Context) {
 
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -110,7 +138,19 @@ func (c *user) GetById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, user))
 }
 
-func (c *user) Save(ctx *gin.Context) {
+//StoreUser 		godoc
+//@Summary 		Store user
+//@Tags 			Users
+//@Description 	store user
+//@Accept 		json
+//@Produce 		json
+//@Param 			token header string true "token"
+//@Success 		201 {object} web.Response
+//@Failure     	400  	{object}  	web.Error
+//@Failure     	401  	{object}  	web.Error
+//@Failure      	500  	{object}  	web.Error
+//@Router 		/users [post]
+func (c *user) Store(ctx *gin.Context) {
 	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 		ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
 		return
@@ -138,9 +178,23 @@ func (c *user) Save(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, newUser))
+	ctx.JSON(http.StatusCreated, web.NewResponse(http.StatusOK, newUser))
 }
 
+//UpdateUser 		godoc
+//@Summary 		Update 	user
+//@Tags 			Users
+//@Description 	update user
+//@Accept 		json
+//@Produce 		json
+//@Param 			token 	header 		string true "token"
+//@Param 			user 	body 		domain.User true "user"
+//@Param 			id 		path 		string true "id user"
+//@Success 		200 	{object} 	web.Response
+//@Failure      	400  	{object}  	web.Error
+//@Failure      	401  	{object}  	web.Error
+//@Failure      	404  	{object}  	web.Error
+//@Router 		/users/{id} [put]
 func (c *user) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
@@ -176,6 +230,19 @@ func (c *user) Update() gin.HandlerFunc {
 	}
 }
 
+//DeleteUser 		godoc
+//@Summary 		Delete 	user
+//@Tags 			Users
+//@Description 	delete user
+//@Accept 		json
+//@Produce 		json
+//@Param 			token 	header 		string true "token"
+//@Param 			id 		path 		string true "id user"
+//@Success 		200 	{object} 	web.Response
+//@Failure     	400  	{object}  	web.Error
+//@Failure     	401  	{object}  	web.Error
+//@Failure      	404  	{object}  	web.Error
+//@Router 		/users/{id} [delete]
 func (c *user) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
@@ -198,6 +265,21 @@ func (c *user) Delete() gin.HandlerFunc {
 	}
 }
 
+//UpdateFields 	godoc
+//@Summary 		UpdateFields user
+//@Tags 			Users
+//@Description 	update Lastname and/or age from user
+//@Accept 		json
+//@Produce 		json
+//@Param 			token header string true "token"
+//@Param 			lastname body int true "lastname"
+//@Param 			age body string true "age"
+//@Param 			id 		path 		string true "id user"
+//@Success 		201 {object} web.Response
+//@Failure     	400  	{object}  	web.Error
+//@Failure     	401  	{object}  	web.Error
+//@Failure      	404  	{object}  	web.Error
+//@Router 		/users/{id} [patch]
 func (c *user) UpdateFields() gin.HandlerFunc {
 	type userFields struct {
 		Lastname string `json:"lastname"`

@@ -1,0 +1,276 @@
+basePath: /
+definitions:
+  domain.User:
+    properties:
+      active:
+        type: boolean
+      age:
+        type: integer
+      created_date:
+        type: string
+      deleted_date:
+        type: string
+      email:
+        type: string
+      firstname:
+        type: string
+      height:
+        type: integer
+      id:
+        type: integer
+      lastname:
+        type: string
+    required:
+    - age
+    - email
+    - firstname
+    - height
+    - lastname
+    type: object
+  web.Error:
+    properties:
+      code:
+        type: string
+      error:
+        type: object
+    type: object
+  web.Response:
+    properties:
+      code:
+        type: string
+      data:
+        type: object
+    type: object
+info:
+  contact:
+    name: API Support
+    url: https://developers.mercadolibre.com.ar/support
+  description: This API Handle MELI Products.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://developers.mercadolibre.com.ar/es_ar/terminos-y-condiciones
+  title: MELI Bootcamp API
+  version: "1.0"
+paths:
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: get users
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: List users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: store user
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.Error'
+      summary: Store user
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete user
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: id user
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Error'
+      summary: "Delete \tuser"
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: get user by id
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: id user
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Error'
+      summary: GetById user
+      tags:
+      - Users
+    patch:
+      consumes:
+      - application/json
+      description: update Lastname and/or age from user
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: lastname
+        in: body
+        name: lastname
+        required: true
+        schema:
+          type: integer
+      - description: age
+        in: body
+        name: age
+        required: true
+        schema:
+          type: string
+      - description: id user
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Error'
+      summary: UpdateFields user
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: update user
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      - description: id user
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Error'
+      summary: "Update \tuser"
+      tags:
+      - Users
+swagger: "2.0"
