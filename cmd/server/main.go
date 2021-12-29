@@ -38,12 +38,12 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	userGroup := r.Group("/users")
-	userGroup.GET("/", userController.GetAll)
-	userGroup.GET("/:id", userController.GetById)
-	userGroup.POST("/", userController.Store)
-	userGroup.PUT("/:id", userController.Update())
-	userGroup.DELETE("/:id", userController.Delete())
-	userGroup.PATCH("/:id", userController.UpdateFields())
+	userGroup.GET("/", userController.ValidateToken, userController.GetAll)
+	userGroup.GET("/:id", userController.ValidateToken, userController.GetById)
+	userGroup.POST("/", userController.ValidateToken, userController.Store)
+	userGroup.PUT("/:id", userController.ValidateToken, userController.Update())
+	userGroup.DELETE("/:id", userController.ValidateToken, userController.Delete())
+	userGroup.PATCH("/:id", userController.ValidateToken, userController.UpdateFields())
 
 	_ = r.Run() // listen and serve on 0.0.0.0:8080 | "localhost:8080"
 }

@@ -21,6 +21,7 @@ type UserController interface {
 	Update() gin.HandlerFunc
 	Delete() gin.HandlerFunc
 	UpdateFields() gin.HandlerFunc
+	ValidateToken(ctx *gin.Context)
 }
 
 type user struct {
@@ -43,11 +44,6 @@ func NewUserController(s users.Service) UserController {
 //@Success 200 {object} web.Response
 //@Router /users [get]
 func (c *user) GetAll(ctx *gin.Context) {
-	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
-		ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
-		return
-	}
-
 	allUsers, err := c.getUsersByQuery(ctx)
 
 	if err != nil {
@@ -61,52 +57,7 @@ func (c *user) GetAll(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, allUsers))
-
 }
-
-func (c *user) getUsersByQuery(ctx *gin.Context) ([]domain.User, error) {
-	usersSlice, err := c.service.GetAll()
-
-	if err != nil {
-		return nil, err
-	}
-
-	if firstname := ctx.Query("firstname"); firstname != "" {
-		usersSlice = c.service.GetAllByField(usersSlice, domain.Firstname, firstname)
-	}
-
-	if lastname := ctx.Query("lastname"); lastname != "" {
-		usersSlice = c.service.GetAllByField(usersSlice, domain.Lastname, lastname)
-	}
-
-	if email := ctx.Query("email"); email != "" {
-		usersSlice = c.service.GetAllByField(usersSlice, domain.Email, email)
-	}
-
-	if createdDate := ctx.Query("created_date"); createdDate != "" {
-		usersSlice = c.service.GetAllByField(usersSlice, domain.CreatedDate, createdDate)
-	}
-
-	if activeString := ctx.Query("active"); activeString != "" {
-		if isActive, err := strconv.ParseBool(activeString); err == nil {
-			usersSlice = c.service.GetAllByField(usersSlice, domain.Active, isActive)
-		}
-	}
-
-	if ageString := ctx.Query("age"); ageString != "" {
-		if age, err := strconv.ParseInt(ageString, 10, 64); err == nil {
-			usersSlice = c.service.GetAllByField(usersSlice, domain.Age, age)
-		}
-	}
-
-	if heightString := ctx.Query("height"); heightString != "" {
-		if height, err := strconv.ParseInt(heightString, 10, 64); err == nil {
-			usersSlice = c.service.GetAllByField(usersSlice, domain.Height, height)
-		}
-	}
-	return usersSlice, nil
-}
-
 
 //GetById 		godoc
 //@Summary 		GetById user
@@ -122,7 +73,6 @@ func (c *user) getUsersByQuery(ctx *gin.Context) ([]domain.User, error) {
 //@Failure      404  	{object}  	web.Error
 //@Router 		/users/{id} [get]
 func (c *user) GetById(ctx *gin.Context) {
-
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, "invalid ID"))
@@ -151,11 +101,6 @@ func (c *user) GetById(ctx *gin.Context) {
 //@Failure      	500  	{object}  	web.Error
 //@Router 		/users [post]
 func (c *user) Store(ctx *gin.Context) {
-	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
-		ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
-		return
-	}
-
 	var newUser domain.User
 
 	if err := ctx.ShouldBindJSON(&newUser); err != nil {
@@ -197,11 +142,6 @@ func (c *user) Store(ctx *gin.Context) {
 //@Router 		/users/{id} [put]
 func (c *user) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
-			ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
-			return
-		}
-
 		var updatedUser domain.User
 		if err := ctx.ShouldBindJSON(&updatedUser); err != nil {
 			validatorErrors := err.(validator.ValidationErrors)
@@ -245,11 +185,6 @@ func (c *user) Update() gin.HandlerFunc {
 //@Router 		/users/{id} [delete]
 func (c *user) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
-			ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
-			return
-		}
-
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, "invalid ID"))
@@ -287,11 +222,6 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 	}
 
 	return func(ctx *gin.Context) {
-		if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
-			ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
-			return
-		}
-
 		fields := userFields{}
 
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -316,4 +246,57 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 
 		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, user))
 	}
+}
+
+func (c *user) ValidateToken(ctx *gin.Context) {
+	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
+		ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
+		ctx.Abort()
+		return
+	}
+
+	ctx.Next()
+}
+
+func (c *user) getUsersByQuery(ctx *gin.Context) ([]domain.User, error) {
+	usersSlice, err := c.service.GetAll()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if firstname := ctx.Query("firstname"); firstname != "" {
+		usersSlice = c.service.GetAllByField(usersSlice, domain.Firstname, firstname)
+	}
+
+	if lastname := ctx.Query("lastname"); lastname != "" {
+		usersSlice = c.service.GetAllByField(usersSlice, domain.Lastname, lastname)
+	}
+
+	if email := ctx.Query("email"); email != "" {
+		usersSlice = c.service.GetAllByField(usersSlice, domain.Email, email)
+	}
+
+	if createdDate := ctx.Query("created_date"); createdDate != "" {
+		usersSlice = c.service.GetAllByField(usersSlice, domain.CreatedDate, createdDate)
+	}
+
+	if activeString := ctx.Query("active"); activeString != "" {
+		if isActive, err := strconv.ParseBool(activeString); err == nil {
+			usersSlice = c.service.GetAllByField(usersSlice, domain.Active, isActive)
+		}
+	}
+
+	if ageString := ctx.Query("age"); ageString != "" {
+		if age, err := strconv.ParseInt(ageString, 10, 64); err == nil {
+			usersSlice = c.service.GetAllByField(usersSlice, domain.Age, age)
+		}
+	}
+
+	if heightString := ctx.Query("height"); heightString != "" {
+		if height, err := strconv.ParseInt(heightString, 10, 64); err == nil {
+			usersSlice = c.service.GetAllByField(usersSlice, domain.Height, height)
+		}
+	}
+	return usersSlice, nil
 }

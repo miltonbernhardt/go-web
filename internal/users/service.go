@@ -45,7 +45,7 @@ func (s *service) GetByID(id int64) (domain.User, error) {
 		}
 	}
 
-	return domain.User{}, fmt.Errorf("no se encontró el usuario %v, bienpuede estar eliminado o dado de baja", id)
+	return domain.User{}, fmt.Errorf("no se encontró el usuario %v, bien puede estar eliminado o dado de baja", id)
 }
 
 func (s *service) GetAllByField(users []domain.User, fieldType domain.UserTypes, value interface{}) []domain.User {

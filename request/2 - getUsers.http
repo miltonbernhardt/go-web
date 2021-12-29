@@ -1,45 +1,59 @@
+// no tiene el token
+GET http://localhost:8080/users
+Accept: application/json
+
+###
 // retorna todos los usuarios
 GET http://localhost:8080/users
+Token: bearer 12345
 Accept: application/json
 
 ###
 
 // retorna los usuarios que tengan el primer nombre John
 GET http://localhost:8080/users?firstname=John
+Token: bearer 12345
 Accept: application/json
 
 ###
 
 // retorna los usuarios que tengan el primer nombre John
 GET http://localhost:8080/users?firstname=John&lastname=Kim&age=22&height=158&email=ki
+Token: bearer 12345
 Accept: application/json
 
 ###
 
 // retorna los usuarios que tengan el primer nombre John y aepllido Kim
 GET http://localhost:8080/users?firstname=John&lastname=Kim
+Token: bearer 12345
 Accept: application/json
 
 ###
 
 GET http://localhost:8080/users?firstname=John&lastname=Kim&age=22&height=158&email=ki
+Token: bearer 12345
 Accept: application/json
 
 ###
 GET http://localhost:8080/users?firstname=John&lastname=Kim&age=22&height=158&email=ki&is_active=true
+Token: bearer 12345
 Accept: application/json
 
 ###
 
 GET http://localhost:8080/users?firstname=John&lastname=Kim&age=22&height=158&email=ki&is_active=false&created_date=19/06/2021
+Token: bearer 12345
 Accept: application/json
 
 ###
 
 GET http://localhost:8080/users?firstname=John&lastname=Kim&age=22&height=158&email=ki&is_active=false&created_date=18/06/2021
+Token: bearer 12345
 Accept: application/json
 
 ###
 
 GET http://localhost:8080/users?firstname=John&lastname=Kim&age=22&height=158&email=ki&active=false&created_date=19/06/2021
+Token: bearer 12345
 Accept: application/json

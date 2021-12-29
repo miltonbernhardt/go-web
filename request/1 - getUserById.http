@@ -1,8 +1,15 @@
+// no tiene el token
+GET http://localhost:8080/users/100
+Accept: application/json
+
+###
 // encuentra un usuario
 GET http://localhost:8080/users/100
+Token: bearer 12345
 Accept: application/json
 
 ###
 // no encuentra un usuario
 GET http://localhost:8080/users/101
+Token: bearer 12345
 Accept: application/json
