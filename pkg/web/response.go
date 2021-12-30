@@ -1,6 +1,9 @@
 package web
 
 import (
+	"errors"
+	"fmt"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strconv"
 )
@@ -13,6 +16,23 @@ type Response struct {
 type Error struct {
 	Code  string      `json:"code"`
 	Error interface{} `json:"error,omitempty"`
+}
+
+type ErrorInValidations struct {
+	Field   string `json:"field"`
+	Tag     string `json:"tag"`
+	Message string `json:"message"`
+}
+
+func Simple(err error) []ErrorInValidations {
+	var validatorErrors validator.ValidationErrors
+	var errorsReturned []ErrorInValidations
+	if errors.As(err, &validatorErrors) { // err.(validator.ValidationErrors)
+		for _, f := range validatorErrors {
+			errorsReturned = append(errorsReturned, ErrorInValidations{Field: f.Field(), Tag: f.Tag(), Message: fmt.Sprintf("el campo '%v' no cumple con la validación '%v'", f.Field(), f.Tag())})
+		}
+	}
+	return errorsReturned
 }
 
 func NewResponse(code int, content interface{}) interface{} {

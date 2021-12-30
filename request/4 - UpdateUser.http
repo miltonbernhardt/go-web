@@ -28,7 +28,7 @@ Content-Type: application/json
 
 ###
 //funcion valida
-PUT http://localhost:8080/users/100
+PUT http://localhost:8080/users/110
 Content-Type: application/json
 Token: bearer 12345
 

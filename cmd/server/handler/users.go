@@ -104,15 +104,11 @@ func (c *user) Store(ctx *gin.Context) {
 	var newUser domain.User
 
 	if err := ctx.ShouldBindJSON(&newUser); err != nil {
-
-		validatorErrors := err.(validator.ValidationErrors)
-
-		errorsToPrint := map[string]string{}
-		for _, fieldError := range validatorErrors {
-			errorsToPrint[fieldError.Field()] = fmt.Sprintf("el campo %v es requerido", fieldError.Field())
+		if errorsToPrint := web.Simple(err); len(errorsToPrint) > 0 {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, errorsToPrint))
+		} else {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, err.Error()))
 		}
-
-		ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, errorsToPrint))
 		return
 	}
 

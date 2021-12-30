@@ -7,7 +7,7 @@ Token: bearer 12345
 {
   "firstname": "Milton",
   "email": "milton.bernhard@mercadolibre.com",
-  "age": 24,
+  "age": 17,
   "active": false
 }
 

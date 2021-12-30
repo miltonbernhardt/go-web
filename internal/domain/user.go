@@ -5,7 +5,7 @@ type User struct {
 	Firstname   string `json:"firstname" binding:"required"`
 	Lastname    string `json:"lastname" binding:"required"`
 	Email       string `json:"email" binding:"required"`
-	Age         int64  `json:"age" binding:"required"`
+	Age         int64  `json:"age" binding:"required,min=18"`
 	Height      int64  `json:"height" binding:"required"`
 	Active      bool   `json:"active"`
 	CreatedDate string `json:"created_date"`
