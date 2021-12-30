@@ -74,7 +74,7 @@ var doc = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "Store user",
+                "summary": "StoreUser user",
                 "parameters": [
                     {
                         "type": "string",
@@ -179,7 +179,7 @@ var doc = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "Update \tuser",
+                "summary": "UpdateUser \tuser",
                 "parameters": [
                     {
                         "type": "string",
@@ -243,7 +243,7 @@ var doc = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "Delete \tuser",
+                "summary": "DeleteUser \tuser",
                 "parameters": [
                     {
                         "type": "string",
@@ -298,7 +298,7 @@ var doc = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "UpdateFields user",
+                "summary": "UpdateUser user",
                 "parameters": [
                     {
                         "type": "string",

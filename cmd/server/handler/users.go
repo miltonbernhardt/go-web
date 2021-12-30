@@ -78,7 +78,7 @@ func (c *user) GetById(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, "invalid ID"))
 	}
 
-	user, err := c.service.GetByID(id)
+	user, err := c.service.FetchUserByID(id)
 
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
@@ -112,7 +112,7 @@ func (c *user) Store(ctx *gin.Context) {
 		return
 	}
 
-	newUser, err := c.service.Store(newUser)
+	newUser, err := c.service.StoreUser(newUser)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, web.NewResponse(http.StatusInternalServerError, err.Error()))
@@ -122,19 +122,19 @@ func (c *user) Store(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, web.NewResponse(http.StatusOK, newUser))
 }
 
-//UpdateUser 		godoc
+//UpdateUser 	godoc
 //@Summary 		Update 	user
-//@Tags 			Users
+//@Tags 		Users
 //@Description 	update user
 //@Accept 		json
 //@Produce 		json
-//@Param 			token 	header 		string true "token"
-//@Param 			user 	body 		domain.User true "user"
-//@Param 			id 		path 		string true "id user"
+//@Param 		token 	header 		string true "token"
+//@Param 		user 	body 		domain.User true "user"
+//@Param 		id 		path 		string true "id user"
 //@Success 		200 	{object} 	web.Response
-//@Failure      	400  	{object}  	web.Error
-//@Failure      	401  	{object}  	web.Error
-//@Failure      	404  	{object}  	web.Error
+//@Failure      400  	{object}  	web.Error
+//@Failure      401  	{object}  	web.Error
+//@Failure      404  	{object}  	web.Error
 //@Router 		/users/{id} [put]
 func (c *user) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -156,7 +156,7 @@ func (c *user) Update() gin.HandlerFunc {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, "invalid ID"))
 		}
 
-		updatedUser, err = c.service.Update(id, updatedUser)
+		updatedUser, err = c.service.UpdateUser(id, updatedUser)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
 			return
@@ -166,18 +166,18 @@ func (c *user) Update() gin.HandlerFunc {
 	}
 }
 
-//DeleteUser 		godoc
+//DeleteUser 	godoc
 //@Summary 		Delete 	user
-//@Tags 			Users
-//@Description 	delete user
+//@Tags 		Users
+//@Description 	unregister a user
 //@Accept 		json
 //@Produce 		json
-//@Param 			token 	header 		string true "token"
-//@Param 			id 		path 		string true "id user"
+//@Param 		token 	header 		string true "token"
+//@Param 		id 		path 		string true "id user"
 //@Success 		200 	{object} 	web.Response
 //@Failure     	400  	{object}  	web.Error
 //@Failure     	401  	{object}  	web.Error
-//@Failure      	404  	{object}  	web.Error
+//@Failure      404  	{object}  	web.Error
 //@Router 		/users/{id} [delete]
 func (c *user) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -186,7 +186,7 @@ func (c *user) Delete() gin.HandlerFunc {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, "invalid ID"))
 		}
 
-		err = c.service.Delete(id)
+		err = c.service.DeleteUser(id)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
 			return
@@ -233,7 +233,7 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 			return
 		}
 
-		user, err := c.service.UpdateFields(id, fields.Lastname, fields.Age)
+		user, err := c.service.UpdateFieldsUser(id, fields.Lastname, fields.Age)
 
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
@@ -255,43 +255,43 @@ func (c *user) ValidateToken(ctx *gin.Context) {
 }
 
 func (c *user) getUsersByQuery(ctx *gin.Context) ([]domain.User, error) {
-	usersSlice, err := c.service.GetAll()
+	usersSlice, err := c.service.FetchAllUsers()
 
 	if err != nil {
 		return nil, err
 	}
 
 	if firstname := ctx.Query("firstname"); firstname != "" {
-		usersSlice = c.service.GetAllByField(usersSlice, domain.Firstname, firstname)
+		usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Firstname, firstname)
 	}
 
 	if lastname := ctx.Query("lastname"); lastname != "" {
-		usersSlice = c.service.GetAllByField(usersSlice, domain.Lastname, lastname)
+		usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Lastname, lastname)
 	}
 
 	if email := ctx.Query("email"); email != "" {
-		usersSlice = c.service.GetAllByField(usersSlice, domain.Email, email)
+		usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Email, email)
 	}
 
 	if createdDate := ctx.Query("created_date"); createdDate != "" {
-		usersSlice = c.service.GetAllByField(usersSlice, domain.CreatedDate, createdDate)
+		usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.CreatedDate, createdDate)
 	}
 
 	if activeString := ctx.Query("active"); activeString != "" {
 		if isActive, err := strconv.ParseBool(activeString); err == nil {
-			usersSlice = c.service.GetAllByField(usersSlice, domain.Active, isActive)
+			usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Active, isActive)
 		}
 	}
 
 	if ageString := ctx.Query("age"); ageString != "" {
 		if age, err := strconv.ParseInt(ageString, 10, 64); err == nil {
-			usersSlice = c.service.GetAllByField(usersSlice, domain.Age, age)
+			usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Age, age)
 		}
 	}
 
 	if heightString := ctx.Query("height"); heightString != "" {
 		if height, err := strconv.ParseInt(heightString, 10, 64); err == nil {
-			usersSlice = c.service.GetAllByField(usersSlice, domain.Height, height)
+			usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Height, height)
 		}
 	}
 	return usersSlice, nil

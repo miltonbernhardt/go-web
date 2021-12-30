@@ -7,12 +7,12 @@ import (
 )
 
 type Repository interface {
-	GetAll() ([]domain.User, error)
-	GetLastID() (int64, error)
+	DeleteUser(id int64) error
+	FetchAllUsers() ([]domain.User, error)
 	Store(user domain.User) (domain.User, error)
 	Update(id int64, user domain.User) (domain.User, error)
-	Delete(id int64) error
-	UpdateFields(id int64, lastname string, age int64) (domain.User, error)
+	UpdateUser(id int64, lastname string, age int64) (domain.User, error)
+	getUserLastID() (int64, error)
 }
 
 type repository struct {
@@ -23,7 +23,7 @@ func NewRepository(db store.Store) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) GetAll() ([]domain.User, error) {
+func (r *repository) FetchAllUsers() ([]domain.User, error) {
 	var users []domain.User
 
 	err := r.db.Read(&users)
@@ -34,7 +34,7 @@ func (r *repository) GetAll() ([]domain.User, error) {
 	return users, nil
 }
 
-func (r *repository) GetLastID() (int64, error) {
+func (r *repository) getUserLastID() (int64, error) {
 	var users []domain.User
 
 	err := r.db.Read(&users)
@@ -49,7 +49,7 @@ func (r *repository) GetLastID() (int64, error) {
 	return users[len(users)-1].Id, nil
 }
 
-func (r *repository) Delete(id int64) error {
+func (r *repository) DeleteUser(id int64) error {
 	var users []domain.User
 
 	err := r.db.Read(&users)
@@ -118,7 +118,7 @@ func (r *repository) Update(id int64, userToUpdate domain.User) (domain.User, er
 	return user, nil
 }
 
-func (r *repository) UpdateFields(id int64, lastname string, age int64) (domain.User, error) {
+func (r *repository) UpdateUser(id int64, lastname string, age int64) (domain.User, error) {
 	var users []domain.User
 
 	err := r.db.Read(&users)
@@ -165,7 +165,7 @@ func (r *repository) Store(user domain.User) (domain.User, error) {
 		return domain.User{}, err
 	}
 
-	lastID, err := r.GetLastID()
+	lastID, err := r.getUserLastID()
 	user.Id = lastID + 1
 
 	if err != nil {

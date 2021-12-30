@@ -8,13 +8,13 @@ import (
 )
 
 type Service interface {
-	GetAll() ([]domain.User, error)
-	GetAllByField(users []domain.User, attribute domain.UserTypes, value interface{}) []domain.User
-	GetByID(id int64) (domain.User, error)
-	Store(user domain.User) (domain.User, error)
-	Update(id int64, user domain.User) (domain.User, error)
-	UpdateFields(id int64, lastname string, age int64) (domain.User, error)
-	Delete(id int64) error
+	DeleteUser(id int64) error
+	FetchAllUsers() ([]domain.User, error)
+	FetchAllUsersByQuery(users []domain.User, attribute domain.UserTypes, value interface{}) []domain.User
+	FetchUserByID(id int64) (domain.User, error)
+	StoreUser(user domain.User) (domain.User, error)
+	UpdateFieldsUser(id int64, lastname string, age int64) (domain.User, error)
+	UpdateUser(id int64, user domain.User) (domain.User, error)
 }
 type service struct {
 	repository Repository
@@ -28,12 +28,12 @@ func NewService(r Repository) Service {
 
 /*####################### GET #######################*/
 
-func (s *service) GetAll() ([]domain.User, error) {
-	return s.repository.GetAll()
+func (s *service) FetchAllUsers() ([]domain.User, error) {
+	return s.repository.FetchAllUsers()
 }
 
-func (s *service) GetByID(id int64) (domain.User, error) {
-	users, err := s.GetAll()
+func (s *service) FetchUserByID(id int64) (domain.User, error) {
+	users, err := s.FetchAllUsers()
 
 	if err != nil {
 		return domain.User{}, err
@@ -48,7 +48,7 @@ func (s *service) GetByID(id int64) (domain.User, error) {
 	return domain.User{}, fmt.Errorf("no se encontró el usuario %v, bien puede estar eliminado o dado de baja", id)
 }
 
-func (s *service) GetAllByField(users []domain.User, fieldType domain.UserTypes, value interface{}) []domain.User {
+func (s *service) FetchAllUsersByQuery(users []domain.User, fieldType domain.UserTypes, value interface{}) []domain.User {
 	var sliceUsers []domain.User
 	for _, user := range users {
 
@@ -84,24 +84,24 @@ func (s *service) GetAllByField(users []domain.User, fieldType domain.UserTypes,
 
 /*####################### POST #######################*/
 
-func (s *service) Store(user domain.User) (domain.User, error) {
+func (s *service) StoreUser(user domain.User) (domain.User, error) {
 	return s.repository.Store(user)
 }
 
 /*####################### PUT #######################*/
 
-func (s *service) Update(id int64, user domain.User) (domain.User, error) {
+func (s *service) UpdateUser(id int64, user domain.User) (domain.User, error) {
 	return s.repository.Update(id, user)
 }
 
 /*####################### DELETE #######################*/
 
-func (s *service) Delete(id int64) error {
-	return s.repository.Delete(id)
+func (s *service) DeleteUser(id int64) error {
+	return s.repository.DeleteUser(id)
 }
 
 /*####################### PATCH #######################*/
 
-func (s *service) UpdateFields(id int64, lastname string, age int64) (domain.User, error) {
-	return s.repository.UpdateFields(id, lastname, age)
+func (s *service) UpdateFieldsUser(id int64, lastname string, age int64) (domain.User, error) {
+	return s.repository.UpdateUser(id, lastname, age)
 }

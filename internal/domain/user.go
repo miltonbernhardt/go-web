@@ -9,7 +9,7 @@ type User struct {
 	Height      int64  `json:"height" binding:"required"`
 	Active      bool   `json:"active"`
 	CreatedDate string `json:"created_date"`
-	DeletedDate string `json:"deleted_date"`
+	DeletedDate string `json:"deleted_date,omitempty"`
 }
 
 type UserTypes string
