@@ -11,6 +11,7 @@ type Repository interface {
 	FetchAllUsers() ([]domain.User, error)
 	Store(user domain.User) (domain.User, error)
 	Update(id int64, user domain.User) (domain.User, error)
+	UpdateName(id int64, name string) (domain.User, error)
 	UpdateUser(id int64, lastname string, age int64) (domain.User, error)
 	getUserLastID() (int64, error)
 }
@@ -46,7 +47,7 @@ func (r *repository) getUserLastID() (int64, error) {
 		return 0, nil
 	}
 
-	return users[len(users)-1].Id, nil
+	return users[len(users)-1].ID, nil
 }
 
 func (r *repository) DeleteUser(id int64) error {
@@ -60,7 +61,7 @@ func (r *repository) DeleteUser(id int64) error {
 	isDeleted := false
 
 	for i := range users {
-		if users[i].Id == id {
+		if users[i].ID == id {
 			if users[i].DeletedDate == "" {
 				users[i].DeletedDate = GetNowAsString()
 				isDeleted = true
@@ -92,7 +93,7 @@ func (r *repository) Update(id int64, userToUpdate domain.User) (domain.User, er
 	user := domain.User{}
 
 	for i := range users {
-		if users[i].Id == id {
+		if users[i].ID == id {
 			if users[i].DeletedDate == "" {
 				users[i].Active = userToUpdate.Active
 				users[i].Age = userToUpdate.Age
@@ -106,7 +107,7 @@ func (r *repository) Update(id int64, userToUpdate domain.User) (domain.User, er
 		}
 	}
 
-	if user.Id == 0 {
+	if user.ID == 0 {
 		return domain.User{}, fmt.Errorf("no se encontró el usuario %v, puede no existir o estar dado de baja", id)
 	}
 
@@ -116,6 +117,33 @@ func (r *repository) Update(id int64, userToUpdate domain.User) (domain.User, er
 	}
 
 	return user, nil
+}
+
+func (r *repository) UpdateName(id int64, name string) (domain.User, error) {
+
+	var ps []domain.User
+	if err := r.db.Read(&ps); err != nil {
+		return domain.User{}, err
+	}
+
+	var p domain.User
+	updated := false
+
+	for i := range ps {
+		if ps[i].ID == id {
+			ps[i].Firstname = name
+			updated = true
+			p = ps[i]
+		}
+	}
+
+	if !updated {
+		return domain.User{}, fmt.Errorf("user %d not found", id)
+	}
+	if err := r.db.Write(ps); err != nil {
+		return domain.User{}, err
+	}
+	return p, nil
 }
 
 func (r *repository) UpdateUser(id int64, lastname string, age int64) (domain.User, error) {
@@ -129,7 +157,7 @@ func (r *repository) UpdateUser(id int64, lastname string, age int64) (domain.Us
 	user := domain.User{}
 
 	for i := range users {
-		if users[i].Id == id {
+		if users[i].ID == id {
 			if users[i].DeletedDate == "" {
 				if age != 0 {
 					users[i].Age = age
@@ -143,7 +171,7 @@ func (r *repository) UpdateUser(id int64, lastname string, age int64) (domain.Us
 		}
 	}
 
-	if user.Id == 0 {
+	if user.ID == 0 {
 		return domain.User{}, fmt.Errorf("no se encontró el usuario %v", id)
 	}
 
@@ -166,7 +194,7 @@ func (r *repository) Store(user domain.User) (domain.User, error) {
 	}
 
 	lastID, err := r.getUserLastID()
-	user.Id = lastID + 1
+	user.ID = lastID + 1
 
 	if err != nil {
 		return domain.User{}, err

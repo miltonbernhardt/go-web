@@ -1,7 +1,7 @@
 package domain
 
 type User struct {
-	Id          int64  `json:"id"`
+	ID          int64  `json:"id"`
 	Firstname   string `json:"firstname" binding:"required"`
 	Lastname    string `json:"lastname" binding:"required"`
 	Email       string `json:"email" binding:"required"`
@@ -15,7 +15,7 @@ type User struct {
 type UserTypes string
 
 const (
-	Id          UserTypes = "Id"
+	Id          UserTypes = "ID"
 	Firstname   UserTypes = "Firstname"
 	Lastname    UserTypes = "Lastname"
 	Email       UserTypes = "Email"

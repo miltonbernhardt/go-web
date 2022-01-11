@@ -40,7 +40,7 @@ func (s *service) FetchUserByID(id int64) (domain.User, error) {
 	}
 
 	for _, user := range users {
-		if user.Id == id {
+		if user.ID == id {
 			return user, nil
 		}
 	}
