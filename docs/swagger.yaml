@@ -1,10 +1,10 @@
-basePath: /
 definitions:
   domain.User:
     properties:
       active:
         type: boolean
       age:
+        minimum: 18
         type: integer
       created_date:
         type: string
@@ -31,15 +31,13 @@ definitions:
     properties:
       code:
         type: string
-      error:
-        type: object
+      error: {}
     type: object
   web.Response:
     properties:
       code:
         type: string
-      data:
-        type: object
+      data: {}
     type: object
 info:
   contact:
@@ -110,7 +108,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete user
+      description: unregister a user
       parameters:
       - description: token
         in: header
@@ -141,7 +139,7 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/web.Error'
-      summary: "Delete \tuser"
+      summary: Delete   user
       tags:
       - Users
     get:
@@ -270,7 +268,7 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/web.Error'
-      summary: "Update \tuser"
+      summary: Update   user
       tags:
       - Users
 swagger: "2.0"

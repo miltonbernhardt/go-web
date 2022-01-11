@@ -13,15 +13,14 @@ import (
 	"os"
 )
 
-// @title MELI Bootcamp API
-// @version 1.0
-// @description This API Handle MELI Products.
-// @termsOfService https://developers.mercadolibre.com.ar/es_ar/terminos-y-condiciones
-// @contact.name API Support
-// @contact.url https://developers.mercadolibre.com.ar/support
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @BasePath /
+// @title           MELI Bootcamp API
+// @version         1.0
+// @description     This API Handle MELI Products.
+// @termsOfService  https://developers.mercadolibre.com.ar/es_ar/terminos-y-condiciones
+// @contact.name    API Support
+// @contact.url     https://developers.mercadolibre.com.ar/support
+// @license.name    Apache 2.0
+// @license.url     http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -35,7 +34,7 @@ func main() {
 	userController := handler.NewUserController(userService)
 
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/doc/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	userGroup := r.Group("/users")
 	userGroup.GET("/", userController.ValidateToken, userController.GetAll)
@@ -45,5 +44,5 @@ func main() {
 	userGroup.DELETE("/:id", userController.ValidateToken, userController.Delete())
 	userGroup.PATCH("/:id", userController.ValidateToken, userController.UpdateFields())
 
-	_ = r.Run() // listen and serve on 0.0.0.0:8080 | "localhost:8080"
+	_ = r.Run("127.0.0.1:8081") // listen and serve on 0. 0.0.0:8080 | "localhost:8080"
 }

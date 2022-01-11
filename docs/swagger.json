@@ -14,7 +14,6 @@
         },
         "version": "1.0"
     },
-    "basePath": "/",
     "paths": {
         "/users": {
             "get": {
@@ -163,7 +162,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Update \tuser",
+                "summary": "Update   user",
                 "parameters": [
                     {
                         "type": "string",
@@ -217,7 +216,7 @@
                 }
             },
             "delete": {
-                "description": "delete user",
+                "description": "unregister a user",
                 "consumes": [
                     "application/json"
                 ],
@@ -227,7 +226,7 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Delete \tuser",
+                "summary": "Delete   user",
                 "parameters": [
                     {
                         "type": "string",
@@ -361,7 +360,8 @@
                     "type": "boolean"
                 },
                 "age": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 18
                 },
                 "created_date": {
                     "type": "string"
@@ -392,9 +392,7 @@
                 "code": {
                     "type": "string"
                 },
-                "error": {
-                    "type": "object"
-                }
+                "error": {}
             }
         },
         "web.Response": {
@@ -403,9 +401,7 @@
                 "code": {
                     "type": "string"
                 },
-                "data": {
-                    "type": "object"
-                }
+                "data": {}
             }
         }
     }
