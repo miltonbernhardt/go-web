@@ -14,9 +14,9 @@ import (
 )
 
 type UserController interface {
-	GetAll(ctx *gin.Context)
-	GetById(ctx *gin.Context)
-	Store(ctx *gin.Context)
+	GetAll() gin.HandlerFunc
+	GetById() gin.HandlerFunc
+	Store() gin.HandlerFunc
 	Update() gin.HandlerFunc
 	Delete() gin.HandlerFunc
 	UpdateFields() gin.HandlerFunc
@@ -42,24 +42,26 @@ func NewUserController(s users.Service) UserController {
 //@Param        token  header    string  true  "token"
 //@Success      200    {object}  web.Response
 //@Router       /users [get]
-func (c *user) GetAll(ctx *gin.Context) {
-	log.Info("trying to get all users")
-	allUsers, err := c.getUsersByFilters(ctx)
+func (c *user) GetAll() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		log.Info("trying to get all users")
+		allUsers, err := c.getUsersByFilters(ctx)
 
-	if err != nil {
-		log.Error(err)
-		web.Error(ctx, http.StatusInternalServerError, web.InternalError)
-		return
+		if err != nil {
+			log.Error(err)
+			web.Error(ctx, http.StatusInternalServerError, web.InternalError)
+			return
+		}
+
+		if len(allUsers) == 0 {
+			allUsers = []domain.User{}
+		}
+
+		log.WithFields(log.Fields{
+			"users": len(allUsers),
+		}).Info("success get all users")
+		web.Success(ctx, http.StatusOK, allUsers)
 	}
-
-	if len(allUsers) == 0 {
-		allUsers = []domain.User{}
-	}
-
-	log.WithFields(log.Fields{
-		"users": len(allUsers),
-	}).Info("success get all users")
-	web.Success(ctx, http.StatusOK, allUsers)
 }
 
 //GetById 		godoc
@@ -75,21 +77,23 @@ func (c *user) GetAll(ctx *gin.Context) {
 //@Failure      401    {object}  web.ErrorResponse
 //@Failure      404    {object}  web.ErrorResponse
 //@Router       /users/{id} [get]
-func (c *user) GetById(ctx *gin.Context) {
-	id, done := c.getIdFromParams(ctx)
-	if done {
-		return
-	}
+func (c *user) GetById() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, done := c.getIdFromParams(ctx)
+		if done {
+			return
+		}
 
-	user, err := c.service.FetchUserByID(id)
-	if c.checkError(ctx, err) {
-		return
-	}
+		user, err := c.service.FetchUserByID(id)
+		if c.checkError(ctx, err) {
+			return
+		}
 
-	log.WithFields(log.Fields{
-		"user": user,
-	}).Info("success get user by ID")
-	web.Success(ctx, http.StatusOK, user)
+		log.WithFields(log.Fields{
+			"user": user,
+		}).Info("success get user by ID")
+		web.Success(ctx, http.StatusOK, user)
+	}
 }
 
 //Store 		godoc
@@ -104,25 +108,27 @@ func (c *user) GetById(ctx *gin.Context) {
 //@Failure      401    {object}  web.ErrorResponse
 //@Failure      500    {object}  web.ErrorResponse
 //@Router       /users [post]
-func (c *user) Store(ctx *gin.Context) {
-	log.Info("trying to store user")
-	var userEntity domain.User
+func (c *user) Store() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		log.Info("trying to store user")
+		var userEntity domain.User
 
-	if err := ctx.ShouldBindJSON(&userEntity); err != nil {
-		web.ValidationError(ctx, http.StatusUnprocessableEntity, err)
-		return
+		if err := ctx.ShouldBindJSON(&userEntity); err != nil {
+			web.ValidationError(ctx, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		userEntity, err := c.service.StoreUser(userEntity)
+
+		if c.checkError(ctx, err) {
+			return
+		}
+
+		log.WithFields(log.Fields{
+			"user": userEntity,
+		}).Info("success store user")
+		web.Success(ctx, http.StatusCreated, userEntity)
 	}
-
-	userEntity, err := c.service.StoreUser(userEntity)
-
-	if c.checkError(ctx, err) {
-		return
-	}
-
-	log.WithFields(log.Fields{
-		"user": userEntity,
-	}).Info("success store user")
-	web.Success(ctx, http.StatusCreated, userEntity)
 }
 
 //Update 		godoc
