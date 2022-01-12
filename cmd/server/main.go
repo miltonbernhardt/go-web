@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/miltonbernhardt/go-web/cmd/server/handler"
@@ -8,10 +9,12 @@ import (
 	"github.com/miltonbernhardt/go-web/internal/users"
 	"github.com/miltonbernhardt/go-web/internal/utils"
 	"github.com/miltonbernhardt/go-web/pkg/store"
+	log "github.com/sirupsen/logrus"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
-	"log"
 	"os"
+	"runtime"
+	"strings"
 )
 
 // @title           MELI Bootcamp API
@@ -23,13 +26,11 @@ import (
 // @license.name    Apache 2.0
 // @license.url     http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("error al cargar archivo .env")
-	}
+
+	loadEnv()
+	loadLog()
 
 	r := gin.Default() // add middleware (Logger & Recovery)
-
 	userRepository := users.NewRepository(store.New(store.FileType, store.FileNameUsers))
 	userService := users.NewService(userRepository, utils.New())
 	userController := handler.NewUserController(userService)
@@ -46,4 +47,33 @@ func main() {
 	userGroup.PATCH("/:id", userController.ValidateToken, userController.UpdateFields())
 
 	_ = r.Run("127.0.0.1:8081") // listen and serve on 0. 0.0.0:8080 | "localhost:8080"
+}
+
+func loadEnv() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("error al cargar archivo .env")
+	}
+}
+func caller() func(*runtime.Frame) (function string, file string) {
+	return func(f *runtime.Frame) (function string, file string) {
+		p, _ := os.Getwd()
+
+		return "", fmt.Sprintf("%s:%d", strings.TrimPrefix(f.File, p), f.Line)
+	}
+}
+func loadLog() {
+	gin.SetMode(gin.ReleaseMode)
+	log.SetReportCaller(true)
+	log.SetFormatter(&log.JSONFormatter{
+		//log.SetFormatter(&log.TextFormatter{
+		//DisableColors: false,
+		//FullTimestamp: true,
+		CallerPrettyfier: caller(),
+		FieldMap: log.FieldMap{
+			log.FieldKeyFile: "caller",
+		},
+		PrettyPrint: true,
+	})
+
 }

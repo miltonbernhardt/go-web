@@ -2,11 +2,11 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/miltonbernhardt/go-web/internal/domain"
 	"github.com/miltonbernhardt/go-web/internal/users"
 	"github.com/miltonbernhardt/go-web/pkg/web"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -43,10 +43,11 @@ func NewUserController(s users.Service) UserController {
 //@Success      200    {object}  web.Response
 //@Router       /users [get]
 func (c *user) GetAll(ctx *gin.Context) {
+	log.Info("trying to get all users")
 	allUsers, err := c.getUsersByFilters(ctx)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		web.Error(ctx, http.StatusInternalServerError, web.InternalError)
 		return
 	}
@@ -55,6 +56,9 @@ func (c *user) GetAll(ctx *gin.Context) {
 		allUsers = []domain.User{}
 	}
 
+	log.WithFields(log.Fields{
+		"users": len(allUsers),
+	}).Info("success get all users")
 	web.Success(ctx, http.StatusOK, allUsers)
 }
 
@@ -82,6 +86,9 @@ func (c *user) GetById(ctx *gin.Context) {
 		return
 	}
 
+	log.WithFields(log.Fields{
+		"user": user,
+	}).Info("success get user by ID")
 	web.Success(ctx, http.StatusOK, user)
 }
 
@@ -98,6 +105,7 @@ func (c *user) GetById(ctx *gin.Context) {
 //@Failure      500    {object}  web.ErrorResponse
 //@Router       /users [post]
 func (c *user) Store(ctx *gin.Context) {
+	log.Info("trying to store user")
 	var userEntity domain.User
 
 	if err := ctx.ShouldBindJSON(&userEntity); err != nil {
@@ -111,6 +119,9 @@ func (c *user) Store(ctx *gin.Context) {
 		return
 	}
 
+	log.WithFields(log.Fields{
+		"user": userEntity,
+	}).Info("success store user")
 	web.Success(ctx, http.StatusCreated, userEntity)
 }
 
@@ -146,6 +157,9 @@ func (c *user) Update() gin.HandlerFunc {
 			return
 		}
 
+		log.WithFields(log.Fields{
+			"user": userEntity,
+		}).Info("success update user")
 		web.Success(ctx, http.StatusOK, userEntity)
 	}
 }
@@ -175,6 +189,9 @@ func (c *user) Delete() gin.HandlerFunc {
 			return
 		}
 
+		log.WithFields(log.Fields{
+			"user_id": id,
+		}).Info("success delete user")
 		web.Success(ctx, http.StatusOK, web.UserDeleted)
 	}
 }
@@ -211,6 +228,7 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 		bodyAsByteArray, _ := ioutil.ReadAll(ctx.Request.Body)
 		err := json.Unmarshal(bodyAsByteArray, &fields)
 		if err != nil || (fields.Lastname == "" && fields.Age == 0) {
+			log.Info("error: bad request for update fields")
 			web.Error(ctx, http.StatusBadRequest, web.UserInvalidUpdate)
 			return
 		}
@@ -221,6 +239,9 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 			return
 		}
 
+		log.WithFields(log.Fields{
+			"user_id": id,
+		}).Info("success update fields user")
 		web.Success(ctx, http.StatusOK, user)
 	}
 }
@@ -228,7 +249,8 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 func (c *user) getIdFromParams(ctx *gin.Context) (int, bool) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		web.Success(ctx, http.StatusBadRequest, web.InvalidID)
+		log.Info("error: invalid ID")
+		web.Error(ctx, http.StatusBadRequest, web.InvalidID)
 		return 0, true
 	}
 	return id, false
@@ -237,6 +259,7 @@ func (c *user) getIdFromParams(ctx *gin.Context) (int, bool) {
 func (c *user) ValidateToken(ctx *gin.Context) {
 	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 		web.Error(ctx, http.StatusUnauthorized, web.UnauthorizedAction)
+		log.Info(http.StatusUnauthorized, "invalid token")
 		ctx.Abort()
 		return
 	}
@@ -245,11 +268,10 @@ func (c *user) ValidateToken(ctx *gin.Context) {
 }
 
 func (c *user) getUsersByFilters(ctx *gin.Context) ([]domain.User, error) {
-	usersSlice, err := c.service.FetchAllUsers()
-	fmt.Printf("\n\n\t%v\t\n\n", usersSlice)
-	fmt.Printf("\n\n\t%v\t\n\n", err)
+	usersSlice, err := c.service.GetAll()
 
 	if err != nil {
+		log.Error(err)
 		return nil, err
 	}
 
@@ -292,10 +314,11 @@ func (c *user) getUsersByFilters(ctx *gin.Context) ([]domain.User, error) {
 func (c *user) checkError(ctx *gin.Context, err error) bool {
 	if err != nil {
 		if err.Error() == web.UserNotFound {
+			log.Info(err)
 			web.Error(ctx, http.StatusNotFound, web.UserNotFound)
 			return true
 		} else {
-			fmt.Println(err)
+			log.Error(err)
 			web.Error(ctx, http.StatusInternalServerError, web.InternalError)
 			return true
 		}

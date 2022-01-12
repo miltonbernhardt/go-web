@@ -11,7 +11,7 @@ import (
 
 type Service interface {
 	DeleteUser(id int) error
-	FetchAllUsers() ([]domain.User, error)
+	GetAll() ([]domain.User, error)
 	FetchAllUsersByQuery(users []domain.User, attribute domain.UserTypes, value interface{}) []domain.User
 	FetchUserByID(id int) (domain.User, error)
 	StoreUser(user domain.User) (domain.User, error)
@@ -32,12 +32,12 @@ func NewService(r Repository, u utils.Functions) Service {
 
 /*####################### GET #######################*/
 
-func (s *service) FetchAllUsers() ([]domain.User, error) {
+func (s *service) GetAll() ([]domain.User, error) {
 	return s.repository.GetAll()
 }
 
 func (s *service) FetchUserByID(id int) (domain.User, error) {
-	users, err := s.FetchAllUsers()
+	users, err := s.GetAll()
 
 	if err != nil {
 		return domain.User{}, err

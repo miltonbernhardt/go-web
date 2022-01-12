@@ -2,10 +2,10 @@ package users
 
 import (
 	"errors"
-	"fmt"
 	"github.com/miltonbernhardt/go-web/internal/domain"
 	"github.com/miltonbernhardt/go-web/pkg/store"
 	"github.com/miltonbernhardt/go-web/pkg/web"
+	log "github.com/sirupsen/logrus"
 )
 
 type Repository interface {
@@ -31,7 +31,6 @@ func (r *repository) GetAll() (users []domain.User, err error) {
 		panicError := recover()
 
 		if panicError != nil {
-			fmt.Printf("\n\n\t\t-------------------\n\n")
 			users = nil
 			err = panicError.(error)
 		}
@@ -48,6 +47,7 @@ func (r *repository) GetAll() (users []domain.User, err error) {
 func (r *repository) getUserLastID() (int, error) {
 	users, err := r.GetAll()
 	if err != nil {
+		log.Error(err)
 		return 0, err
 	}
 
