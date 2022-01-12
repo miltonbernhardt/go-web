@@ -36,7 +36,7 @@ func Success(c *gin.Context, status int, data interface{}) {
 
 func Error(c *gin.Context, status int, format string, args ...interface{}) {
 	err := ErrorResponse{
-		Code:    strings.ReplaceAll(strings.ToLower(http.StatusText(status)), " ", "_"),
+		Code:    statusMsg(status),
 		Message: fmt.Sprintf(format, args...),
 		Status:  status,
 	}
@@ -46,7 +46,7 @@ func Error(c *gin.Context, status int, format string, args ...interface{}) {
 
 func ValidationError(c *gin.Context, status int, err error) {
 	errorResponse := ErrorResponse{
-		Code:    strings.ReplaceAll(strings.ToLower(http.StatusText(status)), " ", "_"),
+		Code:    statusMsg(status),
 		Message: InvalidFields,
 		Fields:  printValidationError(err),
 		Status:  status,
@@ -66,8 +66,18 @@ func printValidationError(err error) interface{} {
 	var errorsReturned []validationError
 	if errors.As(err, &validatorErrors) {
 		for _, f := range validatorErrors {
-			errorsReturned = append(errorsReturned, validationError{Field: f.Field(), Tag: f.Tag(), Message: FieldMissing})
+			errorsReturned = append(errorsReturned,
+				validationError{
+					Field:   f.Field(),
+					Tag:     f.Tag(),
+					Message: FieldMissing,
+				},
+			)
 		}
 	}
 	return errorsReturned
+}
+
+func statusMsg(status int) string {
+	return strings.ReplaceAll(strings.ToLower(http.StatusText(status)), " ", "_")
 }
