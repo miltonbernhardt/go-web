@@ -24,16 +24,34 @@ const (
 func New(store Type, fileName FileName) Store {
 	switch store {
 	case FileType:
-		return &FileStore{fileName}
+		return &FileStore{fileName, nil}
 	}
 	return nil
 }
 
 type FileStore struct {
 	FileName FileName
+	Mock     *Mock
+}
+
+type Mock struct {
+	Data []byte
+	Err  error
+}
+
+func (fs *FileStore) AddMock(mock *Mock) {
+	fs.Mock = mock
+}
+
+func (fs *FileStore) ClearMock() {
+	fs.Mock = nil
 }
 
 func (fs *FileStore) Write(data interface{}) error {
+	if fs.Mock != nil {
+		return fs.Mock.Err
+	}
+
 	fileData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
@@ -50,6 +68,13 @@ func (fs *FileStore) Write(data interface{}) error {
 }
 
 func (fs *FileStore) Read(data interface{}) error {
+	if fs.Mock != nil {
+		if fs.Mock.Err != nil {
+			return fs.Mock.Err
+		}
+		return json.Unmarshal(fs.Mock.Data, data)
+	}
+
 	file, err := os.ReadFile(string(fs.FileName))
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {

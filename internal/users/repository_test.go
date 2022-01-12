@@ -2,7 +2,9 @@ package users
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/miltonbernhardt/go-web/internal/domain"
+	"github.com/miltonbernhardt/go-web/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -60,7 +62,7 @@ func (stub *stubStore) Write(data interface{}) error {
 	return nil
 }
 
-func TestGetAllUsers(t *testing.T) {
+func TestGetAll(t *testing.T) {
 	expectedUsers := []domain.User{
 		{
 			ID:          1,
@@ -97,12 +99,43 @@ func TestGetAllUsers(t *testing.T) {
 		},
 	}
 
-	repository := NewRepository(&stubStore{})
+	dataJson, _ := json.Marshal(expectedUsers)
+	dbStub := store.Mock{
+		Data: dataJson,
+		Err:  nil,
+	}
+	storeMocked := store.FileStore{
+		FileName: "",
+		Mock:     &dbStub,
+	}
+
+	repository := NewRepository(&storeMocked)
 
 	users, err := repository.GetAll()
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedUsers, users)
+}
+
+func TestGetAllError(t *testing.T) {
+	expectedError := errors.New("error for GetAll")
+
+	dbStub := store.Mock{
+		Data: nil,
+		Err:  expectedError,
+	}
+
+	storeMocked := store.FileStore{
+		FileName: "",
+		Mock:     &dbStub,
+	}
+
+	repository := NewRepository(&storeMocked)
+
+	users, err := repository.GetAll()
+
+	assert.Equal(t, expectedError, err)
+	assert.Nil(t, users)
 }
 
 func TestUpdateName(t *testing.T) {
