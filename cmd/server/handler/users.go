@@ -72,7 +72,7 @@ func (c *user) GetAll(ctx *gin.Context) {
 //@Failure      404    {object}  web.ErrorResponse
 //@Router       /users/{id} [get]
 func (c *user) GetById(ctx *gin.Context) {
-	id, err, done := c.getIdFromParams(ctx)
+	id, done := c.getIdFromParams(ctx)
 	if done {
 		return
 	}
@@ -136,12 +136,12 @@ func (c *user) Update() gin.HandlerFunc {
 			return
 		}
 
-		id, err, done := c.getIdFromParams(ctx)
+		id, done := c.getIdFromParams(ctx)
 		if done {
 			return
 		}
 
-		userEntity, err = c.service.UpdateUser(id, userEntity)
+		userEntity, err := c.service.UpdateUser(id, userEntity)
 		if c.checkError(ctx, err) {
 			return
 		}
@@ -165,12 +165,12 @@ func (c *user) Update() gin.HandlerFunc {
 //@Router       /users/{id} [delete]
 func (c *user) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err, done := c.getIdFromParams(ctx)
+		id, done := c.getIdFromParams(ctx)
 		if done {
 			return
 		}
 
-		err = c.service.DeleteUser(id)
+		err := c.service.DeleteUser(id)
 		if c.checkError(ctx, err) {
 			return
 		}
@@ -203,13 +203,13 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		fields := userFields{}
 
-		id, err, done := c.getIdFromParams(ctx)
+		id, done := c.getIdFromParams(ctx)
 		if done {
 			return
 		}
 
 		bodyAsByteArray, _ := ioutil.ReadAll(ctx.Request.Body)
-		err = json.Unmarshal(bodyAsByteArray, &fields)
+		err := json.Unmarshal(bodyAsByteArray, &fields)
 		if err != nil || (fields.Lastname == "" && fields.Age == 0) {
 			web.Error(ctx, http.StatusBadRequest, web.UserInvalidUpdate)
 			return
@@ -225,13 +225,13 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 	}
 }
 
-func (c *user) getIdFromParams(ctx *gin.Context) (int, error, bool) {
+func (c *user) getIdFromParams(ctx *gin.Context) (int, bool) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		web.Success(ctx, http.StatusBadRequest, web.InvalidID)
-		return 0, nil, true
+		return 0, true
 	}
-	return id, err, false
+	return id, false
 }
 
 func (c *user) ValidateToken(ctx *gin.Context) {
@@ -246,6 +246,8 @@ func (c *user) ValidateToken(ctx *gin.Context) {
 
 func (c *user) getUsersByFilters(ctx *gin.Context) ([]domain.User, error) {
 	usersSlice, err := c.service.FetchAllUsers()
+	fmt.Printf("\n\n\t%v\t\n\n", usersSlice)
+	fmt.Printf("\n\n\t%v\t\n\n", err)
 
 	if err != nil {
 		return nil, err

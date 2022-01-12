@@ -19,7 +19,7 @@ type FileName string
 const (
 	FileType            Type     = "file"
 	FileNameUsers       FileName = "./users-db.json"
-	fileNameUsersBackup FileName = "./users-backup.json"
+	FileNameUsersBackup FileName = "./users-backup.json"
 )
 
 func New(store Type, fileName FileName) Store {
@@ -79,7 +79,7 @@ func (fs *FileStore) Read(data interface{}) error {
 		if !errors.Is(err, os.ErrNotExist) {
 			return err
 		}
-		file, err = os.ReadFile(string(fileNameUsersBackup))
+		file, err = os.ReadFile(string(FileNameUsersBackup))
 
 		if err != nil {
 			return err
