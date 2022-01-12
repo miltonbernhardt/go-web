@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"fmt"
 	"github.com/miltonbernhardt/go-web/internal/domain"
 	"github.com/miltonbernhardt/go-web/pkg/store"
 	"github.com/miltonbernhardt/go-web/pkg/web"
@@ -25,21 +26,27 @@ func NewRepository(db store.Store) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) GetAll() ([]domain.User, error) {
-	var users []domain.User
+func (r *repository) GetAll() (users []domain.User, err error) {
+	defer func() {
+		panicError := recover()
 
-	err := r.db.Read(&users)
+		if panicError != nil {
+			fmt.Printf("\n\n\t\t-------------------\n\n")
+			users = nil
+			err = panicError.(error)
+		}
+	}()
+
+	err = r.db.Read(&users)
 	if err != nil {
-		return nil, err
+		return []domain.User{}, err
 	}
 
 	return users, nil
 }
 
 func (r *repository) getUserLastID() (int, error) {
-	var users []domain.User
-
-	err := r.db.Read(&users)
+	users, err := r.GetAll()
 	if err != nil {
 		return 0, err
 	}
@@ -52,9 +59,8 @@ func (r *repository) getUserLastID() (int, error) {
 }
 
 func (r *repository) DeleteUser(id int) error {
-	var users []domain.User
+	users, err := r.GetAll()
 
-	err := r.db.Read(&users)
 	if err != nil {
 		return err
 	}
@@ -82,9 +88,7 @@ func (r *repository) DeleteUser(id int) error {
 }
 
 func (r *repository) Update(id int, userToUpdate domain.User) (domain.User, error) {
-	var users []domain.User
-
-	err := r.db.Read(&users)
+	users, err := r.GetAll()
 	if err != nil {
 		return domain.User{}, err
 	}
@@ -118,35 +122,33 @@ func (r *repository) Update(id int, userToUpdate domain.User) (domain.User, erro
 
 func (r *repository) UpdateName(id int, name string) (domain.User, error) {
 
-	var ps []domain.User
-	if err := r.db.Read(&ps); err != nil {
+	users, err := r.GetAll()
+	if err != nil {
 		return domain.User{}, err
 	}
 
 	var p domain.User
 	updated := false
 
-	for i := range ps {
-		if ps[i].ID == id {
-			ps[i].Firstname = name
+	for i := range users {
+		if users[i].ID == id {
+			users[i].Firstname = name
 			updated = true
-			p = ps[i]
+			p = users[i]
 		}
 	}
 
 	if !updated {
 		return domain.User{}, errors.New(web.UserNotFound)
 	}
-	if err := r.db.Write(ps); err != nil {
+	if err := r.db.Write(users); err != nil {
 		return domain.User{}, err
 	}
 	return p, nil
 }
 
 func (r *repository) UpdateUser(id int, lastname string, age int) (domain.User, error) {
-	var users []domain.User
-
-	err := r.db.Read(&users)
+	users, err := r.GetAll()
 	if err != nil {
 		return domain.User{}, err
 	}
@@ -179,11 +181,7 @@ func (r *repository) UpdateUser(id int, lastname string, age int) (domain.User, 
 }
 
 func (r *repository) Store(user domain.User) (domain.User, error) {
-	user.CreatedDate = GetNowAsString()
-
-	var users []domain.User
-
-	err := r.db.Read(&users)
+	users, err := r.GetAll()
 	if err != nil {
 		return domain.User{}, err
 	}
