@@ -106,7 +106,7 @@ func (r *repository) Update(id int, userToUpdate domain.User) (domain.User, erro
 	}
 
 	if user.ID == 0 {
-		return domain.User{}, fmt.Errorf("no se encontró el usuario %v, puede no existir o estar dado de baja", id)
+		return domain.User{}, errors.New(web.UserNotFound)
 	}
 
 	err = r.db.Write(users)
@@ -168,7 +168,7 @@ func (r *repository) UpdateUser(id int, lastname string, age int) (domain.User, 
 	}
 
 	if user.ID == 0 {
-		return domain.User{}, fmt.Errorf("no se encontró el usuario %v", id)
+		return domain.User{}, errors.New(web.UserNotFound)
 	}
 
 	err = r.db.Write(&users)

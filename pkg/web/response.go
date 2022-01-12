@@ -3,46 +3,71 @@ package web
 import (
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
-	"strconv"
+	"strings"
 )
 
 type Response struct {
-	Code string      `json:"code"`
 	Data interface{} `json:"data,omitempty"`
 }
 
-type Error struct {
-	Code  string      `json:"code"`
-	Error interface{} `json:"error,omitempty"`
+type ErrorResponse struct {
+	Status  int         `json:"-"`
+	Code    string      `json:"code"`
+	Message string      `json:"message"`
+	Fields  interface{} `json:"fields,omitempty"`
 }
 
-type ErrorInValidations struct {
+type ErrorInValidationsResponse struct {
 	Field   string `json:"field"`
 	Tag     string `json:"tag"`
 	Message string `json:"message"`
 }
 
-func Simple(err error) []ErrorInValidations {
+func response(c *gin.Context, status int, data interface{}) {
+	c.JSON(status, data)
+}
+
+func Success(c *gin.Context, status int, data interface{}) {
+	response(c, status, Response{Data: data})
+}
+
+func Error(c *gin.Context, status int, format string, args ...interface{}) {
+	err := ErrorResponse{
+		Code:    strings.ReplaceAll(strings.ToLower(http.StatusText(status)), " ", "_"),
+		Message: fmt.Sprintf(format, args...),
+		Status:  status,
+	}
+
+	response(c, status, err)
+}
+
+func ValidationError(c *gin.Context, status int, err error) {
+	errorResponse := ErrorResponse{
+		Code:    strings.ReplaceAll(strings.ToLower(http.StatusText(status)), " ", "_"),
+		Message: InvalidFields,
+		Fields:  printValidationError(err),
+		Status:  status,
+	}
+
+	response(c, status, errorResponse)
+}
+
+func printValidationError(err error) interface{} {
+	type validationError struct {
+		Field   string `json:"field"`
+		Tag     string `json:"tag"`
+		Message string `json:"message"`
+	}
+
 	var validatorErrors validator.ValidationErrors
-	var errorsReturned []ErrorInValidations
-	if errors.As(err, &validatorErrors) { // err.(validator.ValidationErrors)
+	var errorsReturned []validationError
+	if errors.As(err, &validatorErrors) {
 		for _, f := range validatorErrors {
-			errorsReturned = append(errorsReturned, ErrorInValidations{Field: f.Field(), Tag: f.Tag(), Message: fmt.Sprintf("el campo '%v' no cumple con la validación '%v'", f.Field(), f.Tag())})
+			errorsReturned = append(errorsReturned, validationError{Field: f.Field(), Tag: f.Tag(), Message: FieldMissing})
 		}
 	}
 	return errorsReturned
-}
-
-func NewResponse(code int, content interface{}) interface{} {
-	if code < 300 {
-		return Response{strconv.FormatInt(int64(code), 10), content}
-	}
-
-	return Error{strconv.FormatInt(int64(code), 10), content}
-}
-
-func ResponseUnauthorized() Error {
-	return Error{strconv.FormatInt(int64(http.StatusUnauthorized), 10), "no tiene permisos para realizar la petición solicitada"}
 }

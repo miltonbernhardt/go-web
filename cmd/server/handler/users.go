@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/miltonbernhardt/go-web/internal/domain"
 	"github.com/miltonbernhardt/go-web/internal/users"
 	"github.com/miltonbernhardt/go-web/pkg/web"
@@ -44,19 +43,19 @@ func NewUserController(s users.Service) UserController {
 //@Success      200    {object}  web.Response
 //@Router       /users [get]
 func (c *user) GetAll(ctx *gin.Context) {
-	allUsers, err := c.getUsersByQuery(ctx)
+	allUsers, err := c.getUsersByFilters(ctx)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, web.NewResponse(http.StatusInternalServerError, fmt.Sprint(err)))
+		fmt.Println(err)
+		web.Error(ctx, http.StatusInternalServerError, web.InternalError)
 		return
 	}
 
 	if len(allUsers) == 0 {
-		ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, "no se encontraron usuarios que coincidan con la búsqueda"))
-		return
+		allUsers = []domain.User{}
 	}
 
-	ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, allUsers))
+	web.Success(ctx, http.StatusOK, allUsers)
 }
 
 //GetById 		godoc
@@ -68,24 +67,22 @@ func (c *user) GetAll(ctx *gin.Context) {
 //@Param        token  header    string  true  "token"
 //@Param        id     path      string  true  "id user"
 //@Success      201    {object}  web.Response
-//@Failure      400    {object}  web.Error
-//@Failure      401    {object}  web.Error
-//@Failure      404    {object}  web.Error
+//@Failure      400    {object}  web.ErrorResponse
+//@Failure      401    {object}  web.ErrorResponse
+//@Failure      404    {object}  web.ErrorResponse
 //@Router       /users/{id} [get]
 func (c *user) GetById(ctx *gin.Context) {
-	id, err, done := getId(ctx)
+	id, err, done := c.getIdFromParams(ctx)
 	if done {
 		return
 	}
 
 	user, err := c.service.FetchUserByID(id)
-
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
+	if c.checkError(ctx, err) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, user))
+	web.Success(ctx, http.StatusOK, user)
 }
 
 //Store 		godoc
@@ -96,30 +93,25 @@ func (c *user) GetById(ctx *gin.Context) {
 //@Produce      json
 //@Param        token  header    string  true  "token"
 //@Success      201    {object}  web.Response
-//@Failure      400    {object}  web.Error
-//@Failure      401    {object}  web.Error
-//@Failure      500    {object}  web.Error
+//@Failure      400    {object}  web.ErrorResponse
+//@Failure      401    {object}  web.ErrorResponse
+//@Failure      500    {object}  web.ErrorResponse
 //@Router       /users [post]
 func (c *user) Store(ctx *gin.Context) {
-	var newUser domain.User
+	var userEntity domain.User
 
-	if err := ctx.ShouldBindJSON(&newUser); err != nil {
-		if errorsToPrint := web.Simple(err); len(errorsToPrint) > 0 {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, errorsToPrint))
-		} else {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, err.Error()))
-		}
+	if err := ctx.ShouldBindJSON(&userEntity); err != nil {
+		web.ValidationError(ctx, http.StatusUnprocessableEntity, err)
 		return
 	}
 
-	newUser, err := c.service.StoreUser(newUser)
+	userEntity, err := c.service.StoreUser(userEntity)
 
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, web.NewResponse(http.StatusInternalServerError, err.Error()))
+	if c.checkError(ctx, err) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, web.NewResponse(http.StatusOK, newUser))
+	web.Success(ctx, http.StatusOK, userEntity)
 }
 
 //Update 		godoc
@@ -132,37 +124,29 @@ func (c *user) Store(ctx *gin.Context) {
 //@Param        user   body      domain.User  true  "user"
 //@Param        id     path      string       true  "id user"
 //@Success      200    {object}  web.Response
-//@Failure      400    {object}  web.Error
-//@Failure      401    {object}  web.Error
-//@Failure      404    {object}  web.Error
+//@Failure      400    {object}  web.ErrorResponse
+//@Failure      401    {object}  web.ErrorResponse
+//@Failure      404    {object}  web.ErrorResponse
 //@Router       /users/{id} [put]
 func (c *user) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var updatedUser domain.User
-		if err := ctx.ShouldBindJSON(&updatedUser); err != nil {
-			validatorErrors := err.(validator.ValidationErrors)
-
-			errorsToPrint := map[string]string{}
-			for _, fieldError := range validatorErrors {
-				errorsToPrint[fieldError.Field()] = fmt.Sprintf("%v: %v", web.FieldRequired, fieldError.Field())
-			}
-
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, errorsToPrint))
+		var userEntity domain.User
+		if err := ctx.ShouldBindJSON(&userEntity); err != nil {
+			web.ValidationError(ctx, http.StatusUnprocessableEntity, err)
 			return
 		}
 
-		id, err, done := getId(ctx)
+		id, err, done := c.getIdFromParams(ctx)
 		if done {
 			return
 		}
 
-		updatedUser, err = c.service.UpdateUser(id, updatedUser)
-		if err != nil {
-			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
+		userEntity, err = c.service.UpdateUser(id, userEntity)
+		if c.checkError(ctx, err) {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, updatedUser))
+		web.Success(ctx, http.StatusOK, userEntity)
 	}
 }
 
@@ -175,24 +159,23 @@ func (c *user) Update() gin.HandlerFunc {
 //@Param        token  header    string  true  "token"
 //@Param        id     path      string  true  "id user"
 //@Success      200    {object}  web.Response
-//@Failure      400    {object}  web.Error
-//@Failure      401    {object}  web.Error
-//@Failure      404    {object}  web.Error
+//@Failure      400    {object}  web.ErrorResponse
+//@Failure      401    {object}  web.ErrorResponse
+//@Failure      404    {object}  web.ErrorResponse
 //@Router       /users/{id} [delete]
 func (c *user) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err, done := getId(ctx)
+		id, err, done := c.getIdFromParams(ctx)
 		if done {
 			return
 		}
 
 		err = c.service.DeleteUser(id)
-		if err != nil {
-			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
+		if c.checkError(ctx, err) {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, web.UserDeleted))
+		web.Success(ctx, http.StatusOK, web.UserDeleted)
 	}
 }
 
@@ -207,9 +190,9 @@ func (c *user) Delete() gin.HandlerFunc {
 //@Param        age       body      string  true  "age"
 //@Param        id        path      string  true  "id user"
 //@Success      201       {object}  web.Response
-//@Failure      400       {object}  web.Error
-//@Failure      401       {object}  web.Error
-//@Failure      404       {object}  web.Error
+//@Failure      400       {object}  web.ErrorResponse
+//@Failure      401       {object}  web.ErrorResponse
+//@Failure      404       {object}  web.ErrorResponse
 //@Router       /users/{id} [patch]
 func (c *user) UpdateFields() gin.HandlerFunc {
 	type userFields struct {
@@ -220,7 +203,7 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		fields := userFields{}
 
-		id, err, done := getId(ctx)
+		id, err, done := c.getIdFromParams(ctx)
 		if done {
 			return
 		}
@@ -228,25 +211,24 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 		bodyAsByteArray, _ := ioutil.ReadAll(ctx.Request.Body)
 		err = json.Unmarshal(bodyAsByteArray, &fields)
 		if err != nil || (fields.Lastname == "" && fields.Age == 0) {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, web.UserInvalidUpdate))
+			web.Error(ctx, http.StatusBadRequest, web.UserInvalidUpdate)
 			return
 		}
 
 		user, err := c.service.UpdateFieldsUser(id, fields.Lastname, fields.Age)
 
-		if err != nil {
-			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, err.Error()))
+		if c.checkError(ctx, err) {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, user))
+		web.Success(ctx, http.StatusOK, user)
 	}
 }
 
-func getId(ctx *gin.Context) (int, error, bool) {
+func (c *user) getIdFromParams(ctx *gin.Context) (int, error, bool) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, web.InvalidID))
+		web.Success(ctx, http.StatusBadRequest, web.InvalidID)
 		return 0, nil, true
 	}
 	return id, err, false
@@ -254,7 +236,7 @@ func getId(ctx *gin.Context) (int, error, bool) {
 
 func (c *user) ValidateToken(ctx *gin.Context) {
 	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
-		ctx.JSON(http.StatusUnauthorized, web.ResponseUnauthorized())
+		web.Error(ctx, http.StatusUnauthorized, web.UnauthorizedAction)
 		ctx.Abort()
 		return
 	}
@@ -262,7 +244,7 @@ func (c *user) ValidateToken(ctx *gin.Context) {
 	ctx.Next()
 }
 
-func (c *user) getUsersByQuery(ctx *gin.Context) ([]domain.User, error) {
+func (c *user) getUsersByFilters(ctx *gin.Context) ([]domain.User, error) {
 	usersSlice, err := c.service.FetchAllUsers()
 
 	if err != nil {
@@ -303,4 +285,18 @@ func (c *user) getUsersByQuery(ctx *gin.Context) ([]domain.User, error) {
 		}
 	}
 	return usersSlice, nil
+}
+
+func (c *user) checkError(ctx *gin.Context, err error) bool {
+	if err != nil {
+		if err.Error() == web.UserNotFound {
+			web.Error(ctx, http.StatusNotFound, web.UserNotFound)
+			return true
+		} else {
+			fmt.Println(err)
+			web.Error(ctx, http.StatusInternalServerError, web.InternalError)
+			return true
+		}
+	}
+	return false
 }
