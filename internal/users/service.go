@@ -3,6 +3,7 @@ package users
 import (
 	"errors"
 	"github.com/miltonbernhardt/go-web/internal/domain"
+	"github.com/miltonbernhardt/go-web/internal/utils"
 	"github.com/miltonbernhardt/go-web/pkg/web"
 	"reflect"
 	"strings"
@@ -19,11 +20,13 @@ type Service interface {
 }
 type service struct {
 	repository Repository
+	utils      utils.Functions
 }
 
-func NewService(r Repository) Service {
+func NewService(r Repository, u utils.Functions) Service {
 	return &service{
 		repository: r,
+		utils:      u,
 	}
 }
 
@@ -86,6 +89,7 @@ func (s *service) FetchAllUsersByQuery(users []domain.User, fieldType domain.Use
 /*####################### POST #######################*/
 
 func (s *service) StoreUser(user domain.User) (domain.User, error) {
+	user.CreatedDate = s.utils.GetNowAsString()
 	return s.repository.Store(user)
 }
 

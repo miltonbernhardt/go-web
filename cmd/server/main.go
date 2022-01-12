@@ -6,6 +6,7 @@ import (
 	"github.com/miltonbernhardt/go-web/cmd/server/handler"
 	"github.com/miltonbernhardt/go-web/docs"
 	"github.com/miltonbernhardt/go-web/internal/users"
+	"github.com/miltonbernhardt/go-web/internal/utils"
 	"github.com/miltonbernhardt/go-web/pkg/store"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
@@ -30,7 +31,7 @@ func main() {
 	r := gin.Default() // add middleware (Logger & Recovery)
 
 	userRepository := users.NewRepository(store.New(store.FileType, store.FileNameUsers))
-	userService := users.NewService(userRepository)
+	userService := users.NewService(userRepository, utils.New())
 	userController := handler.NewUserController(userService)
 
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
