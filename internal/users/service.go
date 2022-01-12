@@ -29,7 +29,7 @@ func NewService(r Repository) Service {
 /*####################### GET #######################*/
 
 func (s *service) FetchAllUsers() ([]domain.User, error) {
-	return s.repository.FetchAllUsers()
+	return s.repository.GetAll()
 }
 
 func (s *service) FetchUserByID(id int64) (domain.User, error) {

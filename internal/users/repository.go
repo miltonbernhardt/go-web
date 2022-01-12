@@ -8,7 +8,7 @@ import (
 
 type Repository interface {
 	DeleteUser(id int64) error
-	FetchAllUsers() ([]domain.User, error)
+	GetAll() ([]domain.User, error)
 	Store(user domain.User) (domain.User, error)
 	Update(id int64, user domain.User) (domain.User, error)
 	UpdateName(id int64, name string) (domain.User, error)
@@ -24,7 +24,7 @@ func NewRepository(db store.Store) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) FetchAllUsers() ([]domain.User, error) {
+func (r *repository) GetAll() ([]domain.User, error) {
 	var users []domain.User
 
 	err := r.db.Read(&users)

@@ -99,7 +99,7 @@ func TestGetAllUsers(t *testing.T) {
 
 	repository := NewRepository(&stubStore{})
 
-	users, err := repository.FetchAllUsers()
+	users, err := repository.GetAll()
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedUsers, users)
