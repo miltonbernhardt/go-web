@@ -8,13 +8,13 @@ import (
 )
 
 type Service interface {
-	DeleteUser(id int64) error
+	DeleteUser(id int) error
 	FetchAllUsers() ([]domain.User, error)
 	FetchAllUsersByQuery(users []domain.User, attribute domain.UserTypes, value interface{}) []domain.User
-	FetchUserByID(id int64) (domain.User, error)
+	FetchUserByID(id int) (domain.User, error)
 	StoreUser(user domain.User) (domain.User, error)
-	UpdateFieldsUser(id int64, lastname string, age int64) (domain.User, error)
-	UpdateUser(id int64, user domain.User) (domain.User, error)
+	UpdateFieldsUser(id int, lastname string, age int) (domain.User, error)
+	UpdateUser(id int, user domain.User) (domain.User, error)
 }
 type service struct {
 	repository Repository
@@ -32,7 +32,7 @@ func (s *service) FetchAllUsers() ([]domain.User, error) {
 	return s.repository.GetAll()
 }
 
-func (s *service) FetchUserByID(id int64) (domain.User, error) {
+func (s *service) FetchUserByID(id int) (domain.User, error) {
 	users, err := s.FetchAllUsers()
 
 	if err != nil {
@@ -59,8 +59,8 @@ func (s *service) FetchAllUsersByQuery(users []domain.User, fieldType domain.Use
 		var valueToCompare interface{}
 		if field.IsValid() && field.CanSet() {
 			switch field.Kind() {
-			case reflect.Int64:
-				valueToCompare = field.Interface().(int64)
+			case reflect.Int:
+				valueToCompare = field.Interface().(int)
 				if valueToCompare == value {
 					sliceUsers = append(sliceUsers, user)
 				}
@@ -90,18 +90,18 @@ func (s *service) StoreUser(user domain.User) (domain.User, error) {
 
 /*####################### PUT #######################*/
 
-func (s *service) UpdateUser(id int64, user domain.User) (domain.User, error) {
+func (s *service) UpdateUser(id int, user domain.User) (domain.User, error) {
 	return s.repository.Update(id, user)
 }
 
 /*####################### DELETE #######################*/
 
-func (s *service) DeleteUser(id int64) error {
+func (s *service) DeleteUser(id int) error {
 	return s.repository.DeleteUser(id)
 }
 
 /*####################### PATCH #######################*/
 
-func (s *service) UpdateFieldsUser(id int64, lastname string, age int64) (domain.User, error) {
+func (s *service) UpdateFieldsUser(id int, lastname string, age int) (domain.User, error) {
 	return s.repository.UpdateUser(id, lastname, age)
 }

@@ -34,7 +34,7 @@ func NewUserController(s users.Service) UserController {
 	}
 }
 
-//ListUsers godoc
+//GetAll 		godoc
 //@Summary      List users
 //@Tags         Users
 //@Description  get users
@@ -73,9 +73,9 @@ func (c *user) GetAll(ctx *gin.Context) {
 //@Failure      404    {object}  web.Error
 //@Router       /users/{id} [get]
 func (c *user) GetById(ctx *gin.Context) {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, "invalid ID"))
+	id, err, done := getId(ctx)
+	if done {
+		return
 	}
 
 	user, err := c.service.FetchUserByID(id)
@@ -88,7 +88,7 @@ func (c *user) GetById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, user))
 }
 
-//StoreUser 		godoc
+//Store 		godoc
 //@Summary      Store user
 //@Tags         Users
 //@Description  store user
@@ -122,7 +122,7 @@ func (c *user) Store(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, web.NewResponse(http.StatusOK, newUser))
 }
 
-//UpdateUser 	godoc
+//Update 		godoc
 //@Summary      Update   user
 //@Tags         Users
 //@Description  update user
@@ -144,16 +144,16 @@ func (c *user) Update() gin.HandlerFunc {
 
 			errorsToPrint := map[string]string{}
 			for _, fieldError := range validatorErrors {
-				errorsToPrint[fieldError.Field()] = fmt.Sprintf("el campo %v es requerido", fieldError.Field())
+				errorsToPrint[fieldError.Field()] = fmt.Sprintf("%v: %v", web.FieldRequired, fieldError.Field())
 			}
 
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, errorsToPrint))
 			return
 		}
 
-		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-		if err != nil {
-			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, "invalid ID"))
+		id, err, done := getId(ctx)
+		if done {
+			return
 		}
 
 		updatedUser, err = c.service.UpdateUser(id, updatedUser)
@@ -166,10 +166,10 @@ func (c *user) Update() gin.HandlerFunc {
 	}
 }
 
-//DeleteUser 	godoc
+//Delete 		godoc
 //@Summary      Delete   user
 //@Tags         Users
-//@Description  unregister a user
+//@Description  unregisters a user
 //@Accept       json
 //@Produce      json
 //@Param        token  header    string  true  "token"
@@ -181,9 +181,9 @@ func (c *user) Update() gin.HandlerFunc {
 //@Router       /users/{id} [delete]
 func (c *user) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, "invalid ID"))
+		id, err, done := getId(ctx)
+		if done {
+			return
 		}
 
 		err = c.service.DeleteUser(id)
@@ -192,7 +192,7 @@ func (c *user) Delete() gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, fmt.Sprintf("El producto %d ha sido eliminado", id)))
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, web.UserDeleted))
 	}
 }
 
@@ -214,22 +214,21 @@ func (c *user) Delete() gin.HandlerFunc {
 func (c *user) UpdateFields() gin.HandlerFunc {
 	type userFields struct {
 		Lastname string `json:"lastname"`
-		Age      int64  `json:"age"`
+		Age      int    `json:"age"`
 	}
 
 	return func(ctx *gin.Context) {
 		fields := userFields{}
 
-		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, "invalid ID"))
+		id, err, done := getId(ctx)
+		if done {
 			return
 		}
 
 		bodyAsByteArray, _ := ioutil.ReadAll(ctx.Request.Body)
 		err = json.Unmarshal(bodyAsByteArray, &fields)
 		if err != nil || (fields.Lastname == "" && fields.Age == 0) {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, fmt.Sprintf("modificación invalida del usuario %d", id)))
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, web.UserInvalidUpdate))
 			return
 		}
 
@@ -242,6 +241,15 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 
 		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, user))
 	}
+}
+
+func getId(ctx *gin.Context) (int, error, bool) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, web.InvalidID))
+		return 0, nil, true
+	}
+	return id, err, false
 }
 
 func (c *user) ValidateToken(ctx *gin.Context) {

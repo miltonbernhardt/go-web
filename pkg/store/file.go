@@ -3,6 +3,7 @@ package store
 import (
 	"encoding/json"
 	"errors"
+	"github.com/miltonbernhardt/go-web/internal/domain"
 	"os"
 )
 
@@ -35,8 +36,9 @@ type FileStore struct {
 }
 
 type Mock struct {
-	Data []byte
-	Err  error
+	Data        []byte
+	Err         error
+	ReadWasUsed bool
 }
 
 func (fs *FileStore) AddMock(mock *Mock) {
@@ -69,10 +71,7 @@ func (fs *FileStore) Write(data interface{}) error {
 
 func (fs *FileStore) Read(data interface{}) error {
 	if fs.Mock != nil {
-		if fs.Mock.Err != nil {
-			return fs.Mock.Err
-		}
-		return json.Unmarshal(fs.Mock.Data, data)
+		return mockRead(fs.Mock, data)
 	}
 
 	file, err := os.ReadFile(string(fs.FileName))
@@ -87,4 +86,49 @@ func (fs *FileStore) Read(data interface{}) error {
 		}
 	}
 	return json.Unmarshal(file, &data)
+}
+
+func mockRead(mock *Mock, data interface{}) error {
+	mock.ReadWasUsed = true
+	if mock.Err != nil {
+		return mock.Err
+	}
+
+	if mock.Data == nil {
+		file, _ := json.Marshal([]domain.User{
+			{
+				ID:          1,
+				Firstname:   "firstname",
+				Lastname:    "lastname",
+				Email:       "email",
+				Age:         24,
+				Height:      184,
+				Active:      true,
+				CreatedDate: "22/02/2021",
+			},
+			{
+				ID:          2,
+				Firstname:   "firstname2",
+				Lastname:    "lastname2",
+				Email:       "email2",
+				Age:         24,
+				Height:      184,
+				Active:      false,
+				CreatedDate: "23/02/2021",
+			},
+			{
+				ID:          3,
+				Firstname:   "firstname3",
+				Lastname:    "lastname3",
+				Email:       "email3",
+				Age:         26,
+				Height:      187,
+				Active:      false,
+				CreatedDate: "25/02/2021",
+			},
+		})
+
+		return json.Unmarshal(file, data)
+	}
+	return json.Unmarshal(mock.Data, data)
 }

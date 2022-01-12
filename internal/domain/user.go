@@ -1,15 +1,14 @@
 package domain
 
 type User struct {
-	ID          int64  `json:"id"`
+	ID          int    `json:"id"`
 	Firstname   string `json:"firstname" binding:"required"`
 	Lastname    string `json:"lastname" binding:"required"`
 	Email       string `json:"email" binding:"required"`
-	Age         int64  `json:"age" binding:"required,min=18"`
-	Height      int64  `json:"height" binding:"required"`
+	Age         int    `json:"age" binding:"required,min=18"`
+	Height      int    `json:"height" binding:"required"`
 	Active      bool   `json:"active"`
 	CreatedDate string `json:"created_date"`
-	DeletedDate string `json:"deleted_date,omitempty"`
 }
 
 type UserTypes string
@@ -23,5 +22,4 @@ const (
 	Height      UserTypes = "Height"
 	Active      UserTypes = "Active"
 	CreatedDate UserTypes = "CreatedDate"
-	DeletedDate UserTypes = "DeletedDate"
 )
