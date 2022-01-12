@@ -2,7 +2,6 @@ package users
 
 import (
 	"errors"
-	"fmt"
 	"github.com/miltonbernhardt/go-web/internal/domain"
 	"github.com/miltonbernhardt/go-web/pkg/store"
 	"github.com/miltonbernhardt/go-web/pkg/web"
@@ -70,7 +69,7 @@ func (r *repository) DeleteUser(id int) error {
 	}
 
 	if index == -1 {
-		return errors.New(web.UserNotExists)
+		return errors.New(web.UserNotFound)
 	} else {
 		users = append(users[:index], users[index+1:]...)
 		err = r.db.Write(&users)
@@ -136,7 +135,7 @@ func (r *repository) UpdateName(id int, name string) (domain.User, error) {
 	}
 
 	if !updated {
-		return domain.User{}, fmt.Errorf("user %d not found", id)
+		return domain.User{}, errors.New(web.UserNotFound)
 	}
 	if err := r.db.Write(ps); err != nil {
 		return domain.User{}, err
@@ -189,7 +188,7 @@ func (r *repository) Store(user domain.User) (domain.User, error) {
 		return domain.User{}, err
 	}
 
-	lastID, err := r.getUserLastID()
+	lastID, _ := r.getUserLastID()
 	user.ID = lastID + 1
 
 	if err != nil {

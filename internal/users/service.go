@@ -1,8 +1,9 @@
 package users
 
 import (
-	"fmt"
+	"errors"
 	"github.com/miltonbernhardt/go-web/internal/domain"
+	"github.com/miltonbernhardt/go-web/pkg/web"
 	"reflect"
 	"strings"
 )
@@ -45,7 +46,7 @@ func (s *service) FetchUserByID(id int) (domain.User, error) {
 		}
 	}
 
-	return domain.User{}, fmt.Errorf("no se encontró el usuario %v, bien puede estar eliminado o dado de baja", id)
+	return domain.User{}, errors.New(web.UserNotFound)
 }
 
 func (s *service) FetchAllUsersByQuery(users []domain.User, fieldType domain.UserTypes, value interface{}) []domain.User {

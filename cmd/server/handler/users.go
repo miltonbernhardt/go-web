@@ -111,7 +111,7 @@ func (c *user) Store(ctx *gin.Context) {
 		return
 	}
 
-	web.Success(ctx, http.StatusOK, userEntity)
+	web.Success(ctx, http.StatusCreated, userEntity)
 }
 
 //Update 		godoc
