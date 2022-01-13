@@ -304,13 +304,13 @@ func (c *user) getUsersByFilters(ctx *gin.Context) ([]domain.User, error) {
 	}
 
 	if ageString := ctx.Query("age"); ageString != "" {
-		if age, err := strconv.ParseInt(ageString, 10, 64); err == nil {
+		if age, err := strconv.Atoi(ageString); err == nil {
 			usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Age, age)
 		}
 	}
 
 	if heightString := ctx.Query("height"); heightString != "" {
-		if height, err := strconv.ParseInt(heightString, 10, 64); err == nil {
+		if height, err := strconv.Atoi(heightString); err == nil {
 			usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Height, height)
 		}
 	}

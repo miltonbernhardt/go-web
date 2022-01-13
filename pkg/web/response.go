@@ -20,12 +20,6 @@ type ErrorResponse struct {
 	Fields  interface{} `json:"fields,omitempty"`
 }
 
-type ErrorInValidationsResponse struct {
-	Field   string `json:"field"`
-	Tag     string `json:"tag"`
-	Message string `json:"message"`
-}
-
 func response(c *gin.Context, status int, data interface{}) {
 	c.JSON(status, data)
 }
@@ -36,7 +30,7 @@ func Success(c *gin.Context, status int, data interface{}) {
 
 func Error(c *gin.Context, status int, format string, args ...interface{}) {
 	err := ErrorResponse{
-		Code:    statusMsg(status),
+		Code:    StatusMsg(status),
 		Message: fmt.Sprintf(format, args...),
 		Status:  status,
 	}
@@ -46,7 +40,7 @@ func Error(c *gin.Context, status int, format string, args ...interface{}) {
 
 func ValidationError(c *gin.Context, status int, err error) {
 	errorResponse := ErrorResponse{
-		Code:    statusMsg(status),
+		Code:    StatusMsg(status),
 		Message: InvalidFields,
 		Fields:  printValidationError(err),
 		Status:  status,
@@ -78,6 +72,6 @@ func printValidationError(err error) interface{} {
 	return errorsReturned
 }
 
-func statusMsg(status int) string {
+func StatusMsg(status int) string {
 	return strings.ReplaceAll(strings.ToLower(http.StatusText(status)), " ", "_")
 }
