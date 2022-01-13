@@ -2,7 +2,6 @@ package users
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/miltonbernhardt/go-web/internal/domain"
 	"github.com/miltonbernhardt/go-web/pkg/store"
 	"github.com/stretchr/testify/assert"
@@ -59,27 +58,6 @@ func TestGetAll(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedUsers, users)
-}
-
-func TestGetAllError(t *testing.T) {
-	expectedError := errors.New("error for GetAll")
-
-	dbStub := store.Mock{
-		Data: nil,
-		Err:  expectedError,
-	}
-
-	storeMocked := store.FileStore{
-		FileName: "",
-		Mock:     &dbStub,
-	}
-
-	repository := NewRepository(&storeMocked)
-
-	users, err := repository.GetAll()
-
-	assert.Equal(t, expectedError, err)
-	assert.Nil(t, users)
 }
 
 func TestUpdateName(t *testing.T) {

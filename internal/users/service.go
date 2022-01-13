@@ -10,13 +10,13 @@ import (
 )
 
 type Service interface {
-	DeleteUser(id int) error
+	Delete(id int) error
 	GetAll() ([]domain.User, error)
-	FetchAllUsersByQuery(users []domain.User, attribute domain.UserTypes, value interface{}) []domain.User
-	FetchUserByID(id int) (domain.User, error)
-	StoreUser(user domain.User) (domain.User, error)
-	UpdateFieldsUser(id int, lastname string, age int) (domain.User, error)
-	UpdateUser(id int, user domain.User) (domain.User, error)
+	GetAllWithFilters(users []domain.User, attribute domain.UserTypes, value interface{}) []domain.User
+	GetByID(id int) (domain.User, error)
+	Store(user domain.User) (domain.User, error)
+	UpdateFields(id int, lastname string, age int) (domain.User, error)
+	Update(id int, user domain.User) (domain.User, error)
 }
 type service struct {
 	repository Repository
@@ -36,7 +36,7 @@ func (s *service) GetAll() ([]domain.User, error) {
 	return s.repository.GetAll()
 }
 
-func (s *service) FetchUserByID(id int) (domain.User, error) {
+func (s *service) GetByID(id int) (domain.User, error) {
 	users, err := s.GetAll()
 
 	if err != nil {
@@ -52,7 +52,7 @@ func (s *service) FetchUserByID(id int) (domain.User, error) {
 	return domain.User{}, errors.New(web.UserNotFound)
 }
 
-func (s *service) FetchAllUsersByQuery(users []domain.User, fieldType domain.UserTypes, value interface{}) []domain.User {
+func (s *service) GetAllWithFilters(users []domain.User, fieldType domain.UserTypes, value interface{}) []domain.User {
 	var sliceUsers []domain.User
 	for _, user := range users {
 
@@ -88,25 +88,25 @@ func (s *service) FetchAllUsersByQuery(users []domain.User, fieldType domain.Use
 
 /*####################### POST #######################*/
 
-func (s *service) StoreUser(user domain.User) (domain.User, error) {
+func (s *service) Store(user domain.User) (domain.User, error) {
 	user.CreatedDate = s.utils.GetNowAsString()
 	return s.repository.Store(user)
 }
 
 /*####################### PUT #######################*/
 
-func (s *service) UpdateUser(id int, user domain.User) (domain.User, error) {
+func (s *service) Update(id int, user domain.User) (domain.User, error) {
 	return s.repository.Update(id, user)
 }
 
 /*####################### DELETE #######################*/
 
-func (s *service) DeleteUser(id int) error {
-	return s.repository.DeleteUser(id)
+func (s *service) Delete(id int) error {
+	return s.repository.Delete(id)
 }
 
 /*####################### PATCH #######################*/
 
-func (s *service) UpdateFieldsUser(id int, lastname string, age int) (domain.User, error) {
+func (s *service) UpdateFields(id int, lastname string, age int) (domain.User, error) {
 	return s.repository.UpdateUser(id, lastname, age)
 }

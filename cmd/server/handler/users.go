@@ -84,7 +84,7 @@ func (c *user) GetById() gin.HandlerFunc {
 			return
 		}
 
-		user, err := c.service.FetchUserByID(id)
+		user, err := c.service.GetByID(id)
 		if c.checkError(ctx, err) {
 			return
 		}
@@ -118,7 +118,7 @@ func (c *user) Store() gin.HandlerFunc {
 			return
 		}
 
-		userEntity, err := c.service.StoreUser(userEntity)
+		userEntity, err := c.service.Store(userEntity)
 
 		if c.checkError(ctx, err) {
 			return
@@ -158,7 +158,7 @@ func (c *user) Update() gin.HandlerFunc {
 			return
 		}
 
-		userEntity, err := c.service.UpdateUser(id, userEntity)
+		userEntity, err := c.service.Update(id, userEntity)
 		if c.checkError(ctx, err) {
 			return
 		}
@@ -190,7 +190,7 @@ func (c *user) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err := c.service.DeleteUser(id)
+		err := c.service.Delete(id)
 		if c.checkError(ctx, err) {
 			return
 		}
@@ -239,7 +239,7 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 			return
 		}
 
-		user, err := c.service.UpdateFieldsUser(id, fields.Lastname, fields.Age)
+		user, err := c.service.UpdateFields(id, fields.Lastname, fields.Age)
 
 		if c.checkError(ctx, err) {
 			return
@@ -282,36 +282,36 @@ func (c *user) getUsersByFilters(ctx *gin.Context) ([]domain.User, error) {
 	}
 
 	if firstname := ctx.Query("firstname"); firstname != "" {
-		usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Firstname, firstname)
+		usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Firstname, firstname)
 	}
 
 	if lastname := ctx.Query("lastname"); lastname != "" {
-		usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Lastname, lastname)
+		usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Lastname, lastname)
 	}
 
 	if email := ctx.Query("email"); email != "" {
-		usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Email, email)
+		usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Email, email)
 	}
 
 	if createdDate := ctx.Query("created_date"); createdDate != "" {
-		usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.CreatedDate, createdDate)
+		usersSlice = c.service.GetAllWithFilters(usersSlice, domain.CreatedDate, createdDate)
 	}
 
 	if activeString := ctx.Query("active"); activeString != "" {
 		if isActive, err := strconv.ParseBool(activeString); err == nil {
-			usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Active, isActive)
+			usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Active, isActive)
 		}
 	}
 
 	if ageString := ctx.Query("age"); ageString != "" {
 		if age, err := strconv.Atoi(ageString); err == nil {
-			usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Age, age)
+			usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Age, age)
 		}
 	}
 
 	if heightString := ctx.Query("height"); heightString != "" {
 		if height, err := strconv.Atoi(heightString); err == nil {
-			usersSlice = c.service.FetchAllUsersByQuery(usersSlice, domain.Height, height)
+			usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Height, height)
 		}
 	}
 	return usersSlice, nil

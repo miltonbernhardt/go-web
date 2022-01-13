@@ -9,13 +9,12 @@ import (
 )
 
 type Repository interface {
-	DeleteUser(id int) error
+	Delete(id int) error
 	GetAll() ([]domain.User, error)
 	Store(user domain.User) (domain.User, error)
 	Update(id int, user domain.User) (domain.User, error)
 	UpdateName(id int, name string) (domain.User, error)
 	UpdateUser(id int, lastname string, age int) (domain.User, error)
-	getUserLastID() (int, error)
 }
 
 type repository struct {
@@ -44,21 +43,7 @@ func (r *repository) GetAll() (users []domain.User, err error) {
 	return users, nil
 }
 
-func (r *repository) getUserLastID() (int, error) {
-	users, err := r.GetAll()
-	if err != nil {
-		log.Error(err)
-		return 0, err
-	}
-
-	if len(users) == 0 {
-		return 0, nil
-	}
-
-	return users[len(users)-1].ID, nil
-}
-
-func (r *repository) DeleteUser(id int) error {
+func (r *repository) Delete(id int) error {
 	users, err := r.GetAll()
 
 	if err != nil {
@@ -201,4 +186,18 @@ func (r *repository) Store(user domain.User) (domain.User, error) {
 	}
 
 	return user, nil
+}
+
+func (r *repository) getUserLastID() (int, error) {
+	users, err := r.GetAll()
+	if err != nil {
+		log.Error(err)
+		return 0, err
+	}
+
+	if len(users) == 0 {
+		return 0, nil
+	}
+
+	return users[len(users)-1].ID, nil
 }
