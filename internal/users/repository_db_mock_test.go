@@ -296,10 +296,17 @@ func Test_DB_Mock_UpdateWithContext_Success(t *testing.T) {
 }
 
 func Test_DB_Mock_UpdateWithContext_Fail_ContextDone(t *testing.T) {
-	db, _, _ := sqlmock.New()
+	query := `UPDATE users SET firstname = \?, lastname = \?, email = \?, age = \?, height = \?, active = \?, created_at = \? WHERE id = \?`
+
+	db, mockDB, _ := sqlmock.New()
 	defer func(db *sql.DB) {
 		_ = db.Close()
 	}(db)
+
+	mockDB.ExpectPrepare(query).
+		WillBeClosed().
+		ExpectExec().
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 0)
 	defer cancel()

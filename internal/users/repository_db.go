@@ -128,14 +128,14 @@ func (r *repositoryDB) UpdateUserFirstname(id int, firstname string) error {
 }
 
 func (r *repositoryDB) UpdateWithContext(ctx context.Context, user model.User) (model.User, error) {
-	stmt, err := r.db.PrepareContext(ctx, updateQuery)
+	stmt, err := r.db.Prepare(updateQuery)
 	if err != nil {
 		log.Error(err)
 		return model.User{}, err
 	}
 	defer r.stmtClose(stmt)
 
-	_, err = stmt.Exec(user.Firstname, user.Lastname, user.Email, user.Age, user.Height, user.Active, user.CreatedDate, user.ID)
+	_, err = stmt.ExecContext(ctx, user.Firstname, user.Lastname, user.Email, user.Age, user.Height, user.Active, user.CreatedDate, user.ID)
 	if err != nil {
 		return model.User{}, err
 	}
