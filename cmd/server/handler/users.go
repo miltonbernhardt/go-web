@@ -264,6 +264,7 @@ func (c *user) getIdFromParams(ctx *gin.Context) (int, bool) {
 }
 
 func (c *user) ValidateToken(ctx *gin.Context) {
+	//ToDo: add a const TOKEN
 	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
 		web.Error(ctx, http.StatusUnauthorized, message.UnauthorizedAction)
 		log.Info(http.StatusUnauthorized, "invalid token")

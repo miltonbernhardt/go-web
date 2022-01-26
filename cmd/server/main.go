@@ -51,6 +51,7 @@ func main() {
 
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 
+	//ToDo: add a const IP_ADDRESS
 	ip := os.Getenv("IP_ADDRESS")
 
 	if err = r.Run(ip); err != nil {
@@ -88,6 +89,7 @@ func caller() func(*runtime.Frame) (function string, file string) {
 }
 
 func loadLog() {
+	//ToDo: add a const MODE
 	if os.Getenv("MODE") == "PROD" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -107,8 +109,11 @@ func loadLog() {
 }
 
 func initDB() (*sql.DB, error) {
+	//ToDo: add a const DATABASE
 	database := os.Getenv("DATABASE")
+	//ToDo: add a const DB_USER
 	userDB := os.Getenv("DB_USER")
+	//ToDo: add a const DB_PASS
 	passDB := os.Getenv("DB_PASS")
 
 	dataSource := fmt.Sprintf("%v:%v/%v", userDB, passDB, database)

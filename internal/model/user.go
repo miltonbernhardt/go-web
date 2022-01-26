@@ -13,6 +13,7 @@ type User struct {
 
 type UserTypes string
 
+// ToDo: refactor these const
 const (
 	Id          UserTypes = "ID"
 	Firstname   UserTypes = "Firstname"
