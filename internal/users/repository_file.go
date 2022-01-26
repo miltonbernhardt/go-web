@@ -1,6 +1,7 @@
 package users
 
 import (
+	"context"
 	"errors"
 	"github.com/miltonbernhardt/go-web/internal/model"
 	"github.com/miltonbernhardt/go-web/pkg/message"
@@ -167,6 +168,10 @@ func (r *repositoryFile) UpdateUserAgeLastname(id int, lastname string, age int)
 	}
 
 	return nil
+}
+
+func (r *repositoryFile) UpdateWithContext(ctx context.Context, user model.User) (model.User, error) {
+	return r.Update(user)
 }
 
 func (r *repositoryFile) Store(user model.User) (model.User, error) {

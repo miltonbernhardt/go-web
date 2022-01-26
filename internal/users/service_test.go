@@ -1,6 +1,7 @@
 package users
 
 import (
+	"context"
 	"github.com/miltonbernhardt/go-web/internal/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -44,6 +45,11 @@ func (r *repositoryMock) UpdateUserFirstname(id int, name string) error {
 func (r *repositoryMock) UpdateUserAgeLastname(id int, lastname string, age int) error {
 	args := r.Called(id, lastname, age)
 	return args.Error(0)
+}
+
+func (r *repositoryMock) UpdateWithContext(ctx context.Context, user model.User) (model.User, error) {
+	args := r.Called(ctx, user)
+	return args.Get(0).(model.User), args.Error(1)
 }
 
 func Test_DB_Service_GetAll_Success(t *testing.T) {

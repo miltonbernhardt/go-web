@@ -1,6 +1,7 @@
 package users
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"github.com/miltonbernhardt/go-web/internal/model"
@@ -16,6 +17,7 @@ type Repository interface {
 	Update(user model.User) (model.User, error)
 	UpdateUserAgeLastname(id int, lastname string, age int) error
 	UpdateUserFirstname(id int, firstname string) error
+	UpdateWithContext(ctx context.Context, user model.User) (model.User, error)
 }
 
 type repositoryDB struct {
@@ -123,6 +125,22 @@ func (r *repositoryDB) UpdateUserFirstname(id int, firstname string) error {
 	}
 
 	return nil
+}
+
+func (r *repositoryDB) UpdateWithContext(ctx context.Context, user model.User) (model.User, error) {
+	stmt, err := r.db.PrepareContext(ctx, updateQuery)
+	if err != nil {
+		log.Error(err)
+		return model.User{}, err
+	}
+	defer r.stmtClose(stmt)
+
+	_, err = stmt.Exec(user.Firstname, user.Lastname, user.Email, user.Age, user.Height, user.Active, user.CreatedDate, user.ID)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
 }
 
 func (r *repositoryDB) Store(user model.User) (model.User, error) {

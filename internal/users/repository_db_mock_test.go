@@ -1,6 +1,7 @@
 package users
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
@@ -8,6 +9,7 @@ import (
 	"github.com/miltonbernhardt/go-web/pkg/message"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func Test_DB_Mock_GetAll_Success(t *testing.T) {
@@ -82,18 +84,6 @@ func Test_DB_Mock_GetByFirstname_Fail(t *testing.T) {
 	actualSection, err := repository.GetByFirstname("firstname1")
 	assert.Equal(t, errors.New(message.UserNotFound), err)
 	assert.Equal(t, model.User{}, actualSection)
-}
-
-func Test_DB_Mock__GetByFirstname_Fail(t *testing.T) {
-	db, _, _ := sqlmock.New()
-	defer func(db *sql.DB) {
-		_ = db.Close()
-	}(db)
-
-	repository := NewRepository(db)
-	actualSections, err := repository.GetAll()
-	assert.Error(t, err)
-	assert.Nil(t, actualSections)
 }
 
 func Test_DB_Mock_Delete_Success(t *testing.T) {
@@ -279,6 +269,83 @@ func Test_DB_Mock_UpdateUserFirstname_Fail_Exec(t *testing.T) {
 	repository := NewRepository(db)
 	err := repository.UpdateUserFirstname(1, "firstname")
 	assert.Error(t, err)
+}
+
+func Test_DB_Mock_UpdateWithContext_Success(t *testing.T) {
+	query := `UPDATE users SET firstname = \?, lastname = \?, email = \?, age = \?, height = \?, active = \?, created_at = \? WHERE id = \?`
+	db, mockDB, _ := sqlmock.New()
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	mockDB.ExpectPrepare(query).
+		WillBeClosed().
+		ExpectExec().
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	repository := NewRepository(db)
+	actualUser, err := repository.UpdateWithContext(ctx, model.User{ID: 1, Firstname: "firstname1", Lastname: "lastname1", Email: "email1", Age: 24, Height: 184, Active: true, CreatedDate: "22/02/2021"})
+
+	expectedUser := model.User{ID: 1, Firstname: "firstname1", Lastname: "lastname1", Email: "email1", Age: 24, Height: 184, Active: true, CreatedDate: "22/02/2021"}
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedUser, actualUser)
+}
+
+func Test_DB_Mock_UpdateWithContext_Fail_ContextDone(t *testing.T) {
+	db, _, _ := sqlmock.New()
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 0)
+	defer cancel()
+
+	repository := NewRepository(db)
+	actualUser, err := repository.UpdateWithContext(ctx, model.User{ID: 1, Firstname: "firstname1", Lastname: "lastname1", Email: "email1", Age: 24, Height: 184, Active: true, CreatedDate: "22/02/2021"})
+
+	expectedError := context.DeadlineExceeded
+	expectedUser := model.User{}
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, expectedUser, actualUser)
+}
+
+func Test_DB_Mock_UpdateWithContext_Fail_Prepare(t *testing.T) {
+	db, _, _ := sqlmock.New()
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	repository := NewRepository(db)
+	actualUser, err := repository.UpdateWithContext(ctx, model.User{ID: 1, Firstname: "firstname1", Lastname: "lastname1", Email: "email1", Age: 24, Height: 184, Active: true, CreatedDate: "22/02/2021"})
+	assert.Error(t, err)
+	assert.Equal(t, model.User{}, actualUser)
+}
+
+func Test_DB_Mock_UpdateWithContext_Fail_Exec(t *testing.T) {
+	query := `UPDATE users SET firstname = \?, lastname = \?, email = \?, age = \?, height = \?, active = \?, created_at = \? WHERE id = \?`
+	db, mockDB, _ := sqlmock.New()
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	mockDB.ExpectPrepare(query)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	repository := NewRepository(db)
+	actualUser, err := repository.UpdateWithContext(ctx, model.User{ID: 1, Firstname: "firstname1", Lastname: "lastname1", Email: "email1", Age: 24, Height: 184, Active: true, CreatedDate: "22/02/2021"})
+
+	assert.Error(t, err)
+	assert.Equal(t, model.User{}, actualUser)
 }
 
 func Test_DB_Mock_Store_Success(t *testing.T) {
