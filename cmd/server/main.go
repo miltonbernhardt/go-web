@@ -88,7 +88,10 @@ func caller() func(*runtime.Frame) (function string, file string) {
 }
 
 func loadLog() {
-	//gin.SetMode(gin.ReleaseMode)
+	if os.Getenv("MODE") == "PROD" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	log.SetReportCaller(true)
 	log.SetFormatter(&log.JSONFormatter{
 		//log.SetFormatter(&log.TextFormatter{
