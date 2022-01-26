@@ -23,6 +23,31 @@ var (
 	urlPath = "/users"
 )
 
+type responseError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type responseOfUser struct {
+	Data domain.User `json:"data"`
+}
+
+type responseSliceOfUsers struct {
+	Data []domain.User `json:"data"`
+}
+
+type validationError struct {
+	Field   string `json:"field"`
+	Tag     string `json:"tag"`
+	Message string `json:"message"`
+}
+
+type responseValidationsErrors struct {
+	Code    string            `json:"code"`
+	Message string            `json:"message"`
+	Fields  []validationError `json:"fields"`
+}
+
 func createServer() *gin.Engine {
 	expectedUsers := []domain.User{
 		{
@@ -123,10 +148,7 @@ func createRequestTestWithoutToken(method string, url string, body string) (*htt
 /*************************** GET ALL ***************************/
 
 func Test_GetAll_AuthorizationTokenMissing(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTestWithoutToken(http.MethodGet, "/", "")
@@ -140,10 +162,7 @@ func Test_GetAll_AuthorizationTokenMissing(t *testing.T) {
 }
 
 func Test_GetAll_InternalError(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTest(http.MethodGet, "/", "")
@@ -157,9 +176,7 @@ func Test_GetAll_InternalError(t *testing.T) {
 }
 
 func Test_GetAll_OK(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/", "")
@@ -172,9 +189,7 @@ func Test_GetAll_OK(t *testing.T) {
 }
 
 func Test_GetAll_OK_FilterByFirstname(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?firstname=firstname", "")
@@ -187,9 +202,7 @@ func Test_GetAll_OK_FilterByFirstname(t *testing.T) {
 }
 
 func Test_GetAll_OK_FilterByLastname(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?lastname=apellido", "")
@@ -202,9 +215,7 @@ func Test_GetAll_OK_FilterByLastname(t *testing.T) {
 }
 
 func Test_GetAll_OK_FilterByEmail(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?email=email3", "")
@@ -217,9 +228,7 @@ func Test_GetAll_OK_FilterByEmail(t *testing.T) {
 }
 
 func Test_GetAll_OK_FilterByCreatedDate(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?created_date=25/02/2021", "")
@@ -232,9 +241,7 @@ func Test_GetAll_OK_FilterByCreatedDate(t *testing.T) {
 }
 
 func Test_GetAll_OK_FilterByActive(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?active=true", "")
@@ -247,9 +254,7 @@ func Test_GetAll_OK_FilterByActive(t *testing.T) {
 }
 
 func Test_GetAll_OK_FilterByAge(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?age=25", "")
@@ -262,9 +267,7 @@ func Test_GetAll_OK_FilterByAge(t *testing.T) {
 }
 
 func Test_GetAll_OK_FilterByHeight(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?height=184", "")
@@ -277,9 +280,7 @@ func Test_GetAll_OK_FilterByHeight(t *testing.T) {
 }
 
 func Test_GetAll_OK_NoneUser(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?age=80", "")
@@ -292,9 +293,7 @@ func Test_GetAll_OK_NoneUser(t *testing.T) {
 }
 
 func Test_GetAll_OK_TwoFilters(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?firstname=firstname&lastname=lastname", "")
@@ -307,9 +306,7 @@ func Test_GetAll_OK_TwoFilters(t *testing.T) {
 }
 
 func Test_GetAll_OK_ThreeFilters(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?firstname=firstname&lastname=lastname&age=24", "")
@@ -323,9 +320,7 @@ func Test_GetAll_OK_ThreeFilters(t *testing.T) {
 }
 
 func Test_GetAll_OK_FourFilters(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?lastname=lastname&age=24&height=184&created_date=22/02/2021", "")
@@ -339,9 +334,7 @@ func Test_GetAll_OK_FourFilters(t *testing.T) {
 }
 
 func Test_GetAll_OK_FiveFilters(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?email=email&age=24&height=184&active=true&created_date=22/02/2021", "")
@@ -355,9 +348,7 @@ func Test_GetAll_OK_FiveFilters(t *testing.T) {
 }
 
 func Test_GetAll_OK_SixFilters(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?firstname=firstname&lastname=lastname&email=email&age=24&height=184&active=true", "")
@@ -371,9 +362,7 @@ func Test_GetAll_OK_SixFilters(t *testing.T) {
 }
 
 func Test_GetAll_OK_SevenFilters(t *testing.T) {
-	objReq := struct {
-		Data []domain.User `json:"data"`
-	}{}
+	objReq := responseSliceOfUsers{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/?firstname=firstname&lastname=lastname&email=email&age=24&height=184&active=true&created_date=22/02/2021", "")
@@ -389,10 +378,7 @@ func Test_GetAll_OK_SevenFilters(t *testing.T) {
 /*************************** GET BY ID ***************************/
 
 func Test_GetByID_AuthorizationTokenMissing(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTestWithoutToken(http.MethodGet, "/1", "")
@@ -406,10 +392,7 @@ func Test_GetByID_AuthorizationTokenMissing(t *testing.T) {
 }
 
 func Test_GetByID_InternalError(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTest(http.MethodGet, "/1", "")
@@ -423,10 +406,7 @@ func Test_GetByID_InternalError(t *testing.T) {
 }
 
 func Test_GetByID_NotFound(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/100", "")
@@ -440,10 +420,7 @@ func Test_GetByID_NotFound(t *testing.T) {
 }
 
 func Test_GetByID_InvalidID(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/ID", "")
@@ -457,9 +434,7 @@ func Test_GetByID_InvalidID(t *testing.T) {
 }
 
 func Test_GetByID_OK(t *testing.T) {
-	objReq := struct {
-		Data domain.User `json:"data"`
-	}{}
+	objReq := responseOfUser{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodGet, "/1", "")
@@ -481,10 +456,7 @@ func Test_GetByID_OK(t *testing.T) {
 /*************************** STORE ***************************/
 
 func Test_Store_AuthorizationTokenMissing(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTestWithoutToken(http.MethodPost, "/", `{
@@ -505,10 +477,7 @@ func Test_Store_AuthorizationTokenMissing(t *testing.T) {
 }
 
 func Test_Store_InternalError(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -529,17 +498,7 @@ func Test_Store_InternalError(t *testing.T) {
 }
 
 func Test_Store_UnprocessableEntity_FirstnameMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -561,17 +520,7 @@ func Test_Store_UnprocessableEntity_FirstnameMissing(t *testing.T) {
 }
 
 func Test_Store_UnprocessableEntity_LastnameMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -593,17 +542,7 @@ func Test_Store_UnprocessableEntity_LastnameMissing(t *testing.T) {
 }
 
 func Test_Store_UnprocessableEntity_EmailMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -625,17 +564,7 @@ func Test_Store_UnprocessableEntity_EmailMissing(t *testing.T) {
 }
 
 func Test_Store_UnprocessableEntity_AgeMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -657,17 +586,7 @@ func Test_Store_UnprocessableEntity_AgeMissing(t *testing.T) {
 }
 
 func Test_Store_UnprocessableEntity_HeightMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -689,17 +608,7 @@ func Test_Store_UnprocessableEntity_HeightMissing(t *testing.T) {
 }
 
 func Test_Store_UnprocessableEntity_TwoFieldsMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -721,17 +630,7 @@ func Test_Store_UnprocessableEntity_TwoFieldsMissing(t *testing.T) {
 }
 
 func Test_Store_UnprocessableEntity_ThreeFieldsMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -753,17 +652,7 @@ func Test_Store_UnprocessableEntity_ThreeFieldsMissing(t *testing.T) {
 }
 
 func Test_Store_UnprocessableEntity_FourFieldsMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -785,17 +674,7 @@ func Test_Store_UnprocessableEntity_FourFieldsMissing(t *testing.T) {
 }
 
 func Test_Store_UnprocessableEntity_FiveFieldsMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -817,9 +696,7 @@ func Test_Store_UnprocessableEntity_FiveFieldsMissing(t *testing.T) {
 }
 
 func Test_Store_OK(t *testing.T) {
-	objReq := struct {
-		Data domain.User `json:"data"`
-	}{}
+	objReq := responseOfUser{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPost, "/", `{
@@ -848,10 +725,7 @@ func Test_Store_OK(t *testing.T) {
 /*************************** UPDATE ***************************/
 
 func Test_Update_AuthorizationTokenMissing(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTestWithoutToken(http.MethodPut, "/1", `{
@@ -872,10 +746,7 @@ func Test_Update_AuthorizationTokenMissing(t *testing.T) {
 }
 
 func Test_Update_InternalError(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -896,10 +767,7 @@ func Test_Update_InternalError(t *testing.T) {
 }
 
 func Test_Update_NotFound(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/100", `{
@@ -921,10 +789,7 @@ func Test_Update_NotFound(t *testing.T) {
 }
 
 func Test_Update_InvalidID(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/id", `{
@@ -946,17 +811,7 @@ func Test_Update_InvalidID(t *testing.T) {
 }
 
 func Test_Update_UnprocessableEntity_FirstnameMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -978,17 +833,7 @@ func Test_Update_UnprocessableEntity_FirstnameMissing(t *testing.T) {
 }
 
 func Test_Update_UnprocessableEntity_LastnameMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -1010,17 +855,7 @@ func Test_Update_UnprocessableEntity_LastnameMissing(t *testing.T) {
 }
 
 func Test_Update_UnprocessableEntity_EmailMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -1042,17 +877,7 @@ func Test_Update_UnprocessableEntity_EmailMissing(t *testing.T) {
 }
 
 func Test_Update_UnprocessableEntity_AgeMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -1074,17 +899,7 @@ func Test_Update_UnprocessableEntity_AgeMissing(t *testing.T) {
 }
 
 func Test_Update_UnprocessableEntity_HeightMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -1106,17 +921,7 @@ func Test_Update_UnprocessableEntity_HeightMissing(t *testing.T) {
 }
 
 func Test_Update_UnprocessableEntity_TwoFieldsMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -1138,17 +943,7 @@ func Test_Update_UnprocessableEntity_TwoFieldsMissing(t *testing.T) {
 }
 
 func Test_Update_UnprocessableEntity_ThreeFieldsMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -1170,17 +965,7 @@ func Test_Update_UnprocessableEntity_ThreeFieldsMissing(t *testing.T) {
 }
 
 func Test_Update_UnprocessableEntity_FourFieldsMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -1202,17 +987,7 @@ func Test_Update_UnprocessableEntity_FourFieldsMissing(t *testing.T) {
 }
 
 func Test_Update_UnprocessableEntity_FiveFieldsMissing(t *testing.T) {
-	type validationError struct {
-		Field   string `json:"field"`
-		Tag     string `json:"tag"`
-		Message string `json:"message"`
-	}
-
-	objReq := struct {
-		Code    string            `json:"code"`
-		Message string            `json:"message"`
-		Fields  []validationError `json:"fields"`
-	}{}
+	objReq := responseValidationsErrors{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -1234,9 +1009,7 @@ func Test_Update_UnprocessableEntity_FiveFieldsMissing(t *testing.T) {
 }
 
 func Test_Update_OK(t *testing.T) {
-	objReq := struct {
-		Data domain.User `json:"data"`
-	}{}
+	objReq := responseOfUser{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPut, "/1", `{
@@ -1265,10 +1038,7 @@ func Test_Update_OK(t *testing.T) {
 /*************************** DELETE  ***************************/
 
 func Test_Delete_AuthorizationTokenMissing(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTestWithoutToken(http.MethodDelete, "/1", "")
@@ -1282,10 +1052,7 @@ func Test_Delete_AuthorizationTokenMissing(t *testing.T) {
 }
 
 func Test_Delete_InternalError(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTest(http.MethodDelete, "/1", "")
@@ -1299,10 +1066,7 @@ func Test_Delete_InternalError(t *testing.T) {
 }
 
 func Test_Delete_NotFound(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodDelete, "/100", "")
@@ -1316,10 +1080,7 @@ func Test_Delete_NotFound(t *testing.T) {
 }
 
 func Test_Delete_InvalidID(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodDelete, "/ID", "")
@@ -1351,10 +1112,7 @@ func Test_Delete_OK(t *testing.T) {
 /*************************** UPDATE FIELDS ***************************/
 
 func Test_UpdateFields_AuthorizationTokenMissing(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTestWithoutToken(http.MethodPatch, "/1", `{
@@ -1371,10 +1129,7 @@ func Test_UpdateFields_AuthorizationTokenMissing(t *testing.T) {
 }
 
 func Test_UpdateFields_InternalError(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServerFailDB()
 
 	req, rr := createRequestTest(http.MethodPatch, "/1", `{
@@ -1391,10 +1146,7 @@ func Test_UpdateFields_InternalError(t *testing.T) {
 }
 
 func Test_UpdateFields_NotFound(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPatch, "/100", `{
@@ -1411,10 +1163,7 @@ func Test_UpdateFields_NotFound(t *testing.T) {
 }
 
 func Test_UpdateFields_BadRequest(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPatch, "/1", `{
@@ -1431,10 +1180,7 @@ func Test_UpdateFields_BadRequest(t *testing.T) {
 }
 
 func Test_UpdateFields_InvalidID(t *testing.T) {
-	objReq := struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}{}
+	objReq := responseError{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPatch, "/ID", `{
@@ -1451,9 +1197,7 @@ func Test_UpdateFields_InvalidID(t *testing.T) {
 }
 
 func Test_UpdateFields_OK(t *testing.T) {
-	objReq := struct {
-		Data domain.User `json:"data"`
-	}{}
+	objReq := responseOfUser{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPatch, "/1", `{
@@ -1471,9 +1215,7 @@ func Test_UpdateFields_OK(t *testing.T) {
 }
 
 func Test_UpdateFields_OK_OnlyAge(t *testing.T) {
-	objReq := struct {
-		Data domain.User `json:"data"`
-	}{}
+	objReq := responseOfUser{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPatch, "/1", `{
@@ -1489,9 +1231,7 @@ func Test_UpdateFields_OK_OnlyAge(t *testing.T) {
 }
 
 func Test_UpdateFields_OK_OnlyLastname(t *testing.T) {
-	objReq := struct {
-		Data domain.User `json:"data"`
-	}{}
+	objReq := responseOfUser{}
 	r := createServer()
 
 	req, rr := createRequestTest(http.MethodPatch, "/1", `{

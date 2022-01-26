@@ -1,6 +1,6 @@
 package web
 
-var (
+const (
 	FieldMissing       = "field is missing"
 	FailedToLoadEnv    = "failed to load env file"
 	InternalError      = "an internal error occurred"
