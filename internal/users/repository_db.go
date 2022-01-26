@@ -3,6 +3,7 @@ package users
 import (
 	"database/sql"
 	"github.com/miltonbernhardt/go-web/internal/model"
+	log "github.com/sirupsen/logrus"
 )
 
 type Repository interface {
@@ -45,7 +46,21 @@ func (r *repositoryDB) UpdateUser(id int, lastname string, age int) (model.User,
 }
 
 func (r *repositoryDB) Store(user model.User) (model.User, error) {
-	return model.User{}, nil
+	stmt, err := r.db.Prepare("INSERT INTO users (username, lastname, email, age, height, active, created_at) VALUES( ?, ?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		log.Error(err)
+	}
+	defer func(stmt *sql.Stmt) {
+		_ = stmt.Close()
+	}(stmt)
+
+	result, err := stmt.Exec(user.Firstname, user.Lastname, user.Email, user.Age, user.Height, user.Active, user.CreatedDate)
+	if err != nil {
+		return model.User{}, err
+	}
+	insertedId, _ := result.LastInsertId()
+	user.ID = int(insertedId)
+	return user, nil
 }
 
 func (r *repositoryDB) getUserLastID() (int, error) {

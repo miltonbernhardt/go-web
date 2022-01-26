@@ -8,7 +8,7 @@ type User struct {
 	Age         int    `json:"age" binding:"required,min=18"`
 	Height      int    `json:"height" binding:"required"`
 	Active      bool   `json:"active"`
-	CreatedDate string `json:"created_date"`
+	CreatedDate string `json:"created_date"` //ToDo: refactor to use date instead of string
 }
 
 type UserTypes string
