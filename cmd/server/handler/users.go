@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"github.com/miltonbernhardt/go-web/internal/domain"
+	"github.com/miltonbernhardt/go-web/internal/model"
 	"github.com/miltonbernhardt/go-web/internal/users"
 	"github.com/miltonbernhardt/go-web/pkg/web"
 	log "github.com/sirupsen/logrus"
@@ -54,7 +54,7 @@ func (c *user) GetAll() gin.HandlerFunc {
 		}
 
 		if len(allUsers) == 0 {
-			allUsers = []domain.User{}
+			allUsers = []model.User{}
 		}
 
 		log.WithFields(log.Fields{
@@ -111,7 +111,7 @@ func (c *user) GetById() gin.HandlerFunc {
 func (c *user) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		log.Info("trying to store user")
-		var userEntity domain.User
+		var userEntity model.User
 
 		if err := ctx.ShouldBindJSON(&userEntity); err != nil {
 			web.ValidationError(ctx, http.StatusUnprocessableEntity, err)
@@ -138,7 +138,7 @@ func (c *user) Store() gin.HandlerFunc {
 //@Accept       json
 //@Produce      json
 //@Param        token  header    string       true  "token"
-//@Param        user   body      domain.User  true  "user"
+//@Param        user   body      model.User  true  "user"
 //@Param        id     path      string       true  "id user"
 //@Success      200    {object}  web.Response
 //@Failure      400    {object}  web.ErrorResponse
@@ -147,7 +147,7 @@ func (c *user) Store() gin.HandlerFunc {
 //@Router       /users/{id} [put]
 func (c *user) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var userEntity domain.User
+		var userEntity model.User
 		if err := ctx.ShouldBindJSON(&userEntity); err != nil {
 			web.ValidationError(ctx, http.StatusUnprocessableEntity, err)
 			return
@@ -273,7 +273,7 @@ func (c *user) ValidateToken(ctx *gin.Context) {
 	ctx.Next()
 }
 
-func (c *user) getUsersByFilters(ctx *gin.Context) ([]domain.User, error) {
+func (c *user) getUsersByFilters(ctx *gin.Context) ([]model.User, error) {
 	usersSlice, err := c.service.GetAll()
 
 	if err != nil {
@@ -282,36 +282,36 @@ func (c *user) getUsersByFilters(ctx *gin.Context) ([]domain.User, error) {
 	}
 
 	if firstname := ctx.Query("firstname"); firstname != "" {
-		usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Firstname, firstname)
+		usersSlice = c.service.GetAllWithFilters(usersSlice, model.Firstname, firstname)
 	}
 
 	if lastname := ctx.Query("lastname"); lastname != "" {
-		usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Lastname, lastname)
+		usersSlice = c.service.GetAllWithFilters(usersSlice, model.Lastname, lastname)
 	}
 
 	if email := ctx.Query("email"); email != "" {
-		usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Email, email)
+		usersSlice = c.service.GetAllWithFilters(usersSlice, model.Email, email)
 	}
 
 	if createdDate := ctx.Query("created_date"); createdDate != "" {
-		usersSlice = c.service.GetAllWithFilters(usersSlice, domain.CreatedDate, createdDate)
+		usersSlice = c.service.GetAllWithFilters(usersSlice, model.CreatedDate, createdDate)
 	}
 
 	if activeString := ctx.Query("active"); activeString != "" {
 		if isActive, err := strconv.ParseBool(activeString); err == nil {
-			usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Active, isActive)
+			usersSlice = c.service.GetAllWithFilters(usersSlice, model.Active, isActive)
 		}
 	}
 
 	if ageString := ctx.Query("age"); ageString != "" {
 		if age, err := strconv.Atoi(ageString); err == nil {
-			usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Age, age)
+			usersSlice = c.service.GetAllWithFilters(usersSlice, model.Age, age)
 		}
 	}
 
 	if heightString := ctx.Query("height"); heightString != "" {
 		if height, err := strconv.Atoi(heightString); err == nil {
-			usersSlice = c.service.GetAllWithFilters(usersSlice, domain.Height, height)
+			usersSlice = c.service.GetAllWithFilters(usersSlice, model.Height, height)
 		}
 	}
 	return usersSlice, nil

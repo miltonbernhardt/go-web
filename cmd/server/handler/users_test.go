@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"github.com/miltonbernhardt/go-web/internal/domain"
+	"github.com/miltonbernhardt/go-web/internal/model"
 	"github.com/miltonbernhardt/go-web/internal/users"
 	"github.com/miltonbernhardt/go-web/internal/utils"
 	"github.com/miltonbernhardt/go-web/pkg/store"
@@ -29,11 +29,11 @@ type responseError struct {
 }
 
 type responseOfUser struct {
-	Data domain.User `json:"data"`
+	Data model.User `json:"data"`
 }
 
 type responseSliceOfUsers struct {
-	Data []domain.User `json:"data"`
+	Data []model.User `json:"data"`
 }
 
 type validationError struct {
@@ -49,7 +49,7 @@ type responseValidationsErrors struct {
 }
 
 func createServer() *gin.Engine {
-	expectedUsers := []domain.User{
+	expectedUsers := []model.User{
 		{
 			ID:          1,
 			Firstname:   "firstname",
@@ -94,7 +94,7 @@ func createServer() *gin.Engine {
 	}
 
 	_ = os.Setenv("TOKEN", token)
-	repo := users.NewRepository(&storeMocked)
+	repo := users.NewRepositoryFile(&storeMocked)
 	util := utils.New()
 	util.AddMock(&utils.Mock{Date: "02/01/2006 15:04:05"})
 	service := users.NewService(repo, util)
@@ -106,7 +106,7 @@ func createServer() *gin.Engine {
 func createServerFailDB() *gin.Engine {
 	_ = os.Setenv("TOKEN", token)
 	db := store.New("error", "../products.json")
-	repo := users.NewRepository(db)
+	repo := users.NewRepositoryFile(db)
 	util := utils.New()
 	util.AddMock(&utils.Mock{Date: "02/01/2006 15:04:05"})
 	service := users.NewService(repo, util)

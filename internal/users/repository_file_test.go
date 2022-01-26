@@ -2,14 +2,14 @@ package users
 
 import (
 	"encoding/json"
-	"github.com/miltonbernhardt/go-web/internal/domain"
+	"github.com/miltonbernhardt/go-web/internal/model"
 	"github.com/miltonbernhardt/go-web/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestGetAll(t *testing.T) {
-	expectedUsers := []domain.User{
+func Test_File_GetAll_Success(t *testing.T) {
+	expectedUsers := []model.User{
 		{
 			ID:          1,
 			Firstname:   "firstname",
@@ -52,7 +52,7 @@ func TestGetAll(t *testing.T) {
 		Mock:     &dbStub,
 	}
 
-	repository := NewRepository(&storeMocked)
+	repository := NewRepositoryFile(&storeMocked)
 
 	users, err := repository.GetAll()
 
@@ -60,7 +60,7 @@ func TestGetAll(t *testing.T) {
 	assert.Equal(t, expectedUsers, users)
 }
 
-func TestUpdateName(t *testing.T) {
+func Test_File_UpdateName_Success(t *testing.T) {
 	mock := store.Mock{}
 
 	storeMocked := store.FileStore{
@@ -68,10 +68,10 @@ func TestUpdateName(t *testing.T) {
 		Mock:     &mock,
 	}
 
-	repository := NewRepository(&storeMocked)
+	repository := NewRepositoryFile(&storeMocked)
 
 	actualUser, err := repository.UpdateName(1, "After Update")
-	expectedUser := domain.User{
+	expectedUser := model.User{
 		ID:          1,
 		Firstname:   "After Update",
 		Lastname:    "lastname",

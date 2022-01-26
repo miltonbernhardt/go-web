@@ -1,10 +1,17 @@
 package store
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/miltonbernhardt/go-web/internal/domain"
+	"github.com/miltonbernhardt/go-web/internal/model"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+var (
+	StorageDB *sql.DB
 )
 
 type Store interface {
@@ -18,6 +25,7 @@ type FileName string
 
 const (
 	FileType            Type     = "file"
+	DBType              Type     = "db"
 	FileNameUsers       FileName = "./users-db.json"
 	FileNameUsersBackup FileName = "./users-backup.json"
 )
@@ -95,7 +103,7 @@ func mockRead(mock *Mock, data interface{}) error {
 	}
 
 	if mock.Data == nil {
-		file, _ := json.Marshal([]domain.User{
+		file, _ := json.Marshal([]model.User{
 			{
 				ID:          1,
 				Firstname:   "firstname",

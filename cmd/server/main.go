@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -33,14 +34,31 @@ func main() {
 
 	r := gin.Default() // add middleware (Logger & Recovery)
 
-	userRepository := users.NewRepository(store.New(store.FileType, store.FileNameUsers))
+	db, err := initDB()
+
+	var userRepository users.Repository
+
+	if err != nil {
+		log.Error(err)
+		userRepository = users.NewRepositoryFile(store.New(store.FileType, store.FileNameUsers))
+	} else {
+		userRepository = users.NewRepository(db)
+	}
+
 	userService := users.NewService(userRepository, utils.New())
 	userController := handler.NewUserController(userService)
 	loadRoutes(r, userController)
 
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 
-	_ = r.Run("127.0.0.1:8081") // listen and serve on 0. 0.0.0:8080 | "localhost:8080"
+	ip := os.Getenv("IP_ADDRESS")
+	err = r.Run(ip) // listen and serve on 0. 0.0.0:8080 | "localhost:8080"
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Info("server started at ", ip)
 }
 
 func loadRoutes(r *gin.Engine, userController handler.UserController) {
@@ -71,7 +89,7 @@ func caller() func(*runtime.Frame) (function string, file string) {
 }
 
 func loadLog() {
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 	log.SetReportCaller(true)
 	log.SetFormatter(&log.JSONFormatter{
 		//log.SetFormatter(&log.TextFormatter{
@@ -84,4 +102,24 @@ func loadLog() {
 		PrettyPrint: true,
 	})
 
+}
+
+func initDB() (*sql.DB, error) {
+	database := os.Getenv("DATABASE")
+	userDB := os.Getenv("DB_USER")
+	passDB := os.Getenv("DB_PASS")
+
+	dataSource := fmt.Sprintf("%v:%v/%v", userDB, passDB, database)
+	db, err := sql.Open("mysql", dataSource)
+
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+
+	log.Println("database Configured")
+
+	return db, nil
 }

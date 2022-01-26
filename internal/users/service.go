@@ -2,7 +2,7 @@ package users
 
 import (
 	"errors"
-	"github.com/miltonbernhardt/go-web/internal/domain"
+	"github.com/miltonbernhardt/go-web/internal/model"
 	"github.com/miltonbernhardt/go-web/internal/utils"
 	"github.com/miltonbernhardt/go-web/pkg/web"
 	"reflect"
@@ -11,12 +11,12 @@ import (
 
 type Service interface {
 	Delete(id int) error
-	GetAll() ([]domain.User, error)
-	GetAllWithFilters(users []domain.User, attribute domain.UserTypes, value interface{}) []domain.User
-	GetByID(id int) (domain.User, error)
-	Store(user domain.User) (domain.User, error)
-	UpdateFields(id int, lastname string, age int) (domain.User, error)
-	Update(id int, user domain.User) (domain.User, error)
+	GetAll() ([]model.User, error)
+	GetAllWithFilters(users []model.User, attribute model.UserTypes, value interface{}) []model.User
+	GetByID(id int) (model.User, error)
+	Store(user model.User) (model.User, error)
+	UpdateFields(id int, lastname string, age int) (model.User, error)
+	Update(id int, user model.User) (model.User, error)
 }
 type service struct {
 	repository Repository
@@ -32,28 +32,28 @@ func NewService(r Repository, u utils.Functions) Service {
 
 /*####################### GET #######################*/
 
-func (s *service) GetAll() ([]domain.User, error) {
+func (s *service) GetAll() ([]model.User, error) {
 	return s.repository.GetAll()
 }
 
-func (s *service) GetByID(id int) (domain.User, error) {
-	users, err := s.GetAll()
+func (s *service) GetByID(id int) (model.User, error) {
+	allUsers, err := s.GetAll()
 
 	if err != nil {
-		return domain.User{}, err
+		return model.User{}, err
 	}
 
-	for _, user := range users {
+	for _, user := range allUsers {
 		if user.ID == id {
 			return user, nil
 		}
 	}
 
-	return domain.User{}, errors.New(web.UserNotFound)
+	return model.User{}, errors.New(web.UserNotFound)
 }
 
-func (s *service) GetAllWithFilters(users []domain.User, fieldType domain.UserTypes, value interface{}) []domain.User {
-	var sliceUsers []domain.User
+func (s *service) GetAllWithFilters(users []model.User, fieldType model.UserTypes, value interface{}) []model.User {
+	var sliceUsers []model.User
 	for _, user := range users {
 
 		userReflected := reflect.ValueOf(&user)
@@ -88,14 +88,15 @@ func (s *service) GetAllWithFilters(users []domain.User, fieldType domain.UserTy
 
 /*####################### POST #######################*/
 
-func (s *service) Store(user domain.User) (domain.User, error) {
+func (s *service) Store(user model.User) (model.User, error) {
 	user.CreatedDate = s.utils.GetNowAsString()
 	return s.repository.Store(user)
 }
 
 /*####################### PUT #######################*/
 
-func (s *service) Update(id int, user domain.User) (domain.User, error) {
+func (s *service) Update(id int, user model.User) (model.User, error) {
+	//todo change model.user to some dto
 	return s.repository.Update(id, user)
 }
 
@@ -107,6 +108,6 @@ func (s *service) Delete(id int) error {
 
 /*####################### PATCH #######################*/
 
-func (s *service) UpdateFields(id int, lastname string, age int) (domain.User, error) {
+func (s *service) UpdateFields(id int, lastname string, age int) (model.User, error) {
 	return s.repository.UpdateUser(id, lastname, age)
 }
