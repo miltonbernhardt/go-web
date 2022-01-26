@@ -63,7 +63,7 @@ func (r *repositoryFile) Delete(id int) error {
 	return nil
 }
 
-func (r *repositoryFile) Update(id int, userToUpdate model.User) (model.User, error) {
+func (r *repositoryFile) Update(userToUpdate model.User) (model.User, error) {
 	allUsers, err := r.GetAll()
 	if err != nil {
 		return model.User{}, err
@@ -72,7 +72,7 @@ func (r *repositoryFile) Update(id int, userToUpdate model.User) (model.User, er
 	user := model.User{}
 
 	for i := range allUsers {
-		if allUsers[i].ID == id {
+		if allUsers[i].ID == userToUpdate.ID {
 			allUsers[i].Active = userToUpdate.Active
 			allUsers[i].Age = userToUpdate.Age
 			allUsers[i].Email = userToUpdate.Email
@@ -96,7 +96,7 @@ func (r *repositoryFile) Update(id int, userToUpdate model.User) (model.User, er
 	return user, nil
 }
 
-func (r *repositoryFile) UpdateName(id int, name string) error {
+func (r *repositoryFile) UpdateUserFirstname(id int, name string) error {
 	allUsers, err := r.GetAll()
 	if err != nil {
 		return err
@@ -120,7 +120,7 @@ func (r *repositoryFile) UpdateName(id int, name string) error {
 	return nil
 }
 
-func (r *repositoryFile) UpdateUser(id int, lastname string, age int) error {
+func (r *repositoryFile) UpdateUserAgeLastname(id int, lastname string, age int) error {
 	allUsers, err := r.GetAll()
 	if err != nil {
 		return err

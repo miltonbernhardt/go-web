@@ -97,7 +97,8 @@ func (s *service) Store(user model.User) (model.User, error) {
 
 func (s *service) Update(id int, user model.User) (model.User, error) {
 	//todo change model.user to some dto
-	return s.repository.Update(id, user)
+	user.ID = id
+	return s.repository.Update(user)
 }
 
 /*####################### DELETE #######################*/
@@ -109,5 +110,5 @@ func (s *service) Delete(id int) error {
 /*####################### PATCH #######################*/
 
 func (s *service) UpdateFields(id int, lastname string, age int) error {
-	return s.repository.UpdateUser(id, lastname, age)
+	return s.repository.UpdateUserAgeLastname(id, lastname, age)
 }

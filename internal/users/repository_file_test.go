@@ -70,19 +70,7 @@ func Test_File_UpdateName_Success(t *testing.T) {
 
 	repository := NewRepositoryFile(&storeMocked)
 
-	actualUser, err := repository.UpdateName(1, "After Update")
-	expectedUser := model.User{
-		ID:          1,
-		Firstname:   "After Update",
-		Lastname:    "lastname",
-		Email:       "email",
-		Age:         24,
-		Height:      184,
-		Active:      true,
-		CreatedDate: "22/02/2021",
-	}
-
+	err := repository.UpdateUserFirstname(1, "After Update")
 	assert.Nil(t, err)
-	assert.Equal(t, actualUser, expectedUser)
 	assert.True(t, mock.ReadWasUsed)
 }
