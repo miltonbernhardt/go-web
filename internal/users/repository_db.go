@@ -2,13 +2,16 @@ package users
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/miltonbernhardt/go-web/internal/model"
+	"github.com/miltonbernhardt/go-web/pkg/message"
 	log "github.com/sirupsen/logrus"
 )
 
 type Repository interface {
 	Delete(id int) error
 	GetAll() ([]model.User, error)
+	GetByFirstname(firstname string) (model.User, error)
 	Store(user model.User) (model.User, error)
 	Update(user model.User) (model.User, error)
 	UpdateUserAgeLastname(id int, lastname string, age int) error
@@ -43,6 +46,18 @@ func (r *repositoryDB) GetAll() (users []model.User, err error) {
 		users = append(users, user)
 	}
 	return users, nil
+}
+
+func (r *repositoryDB) GetByFirstname(firstname string) (model.User, error) {
+	row := r.db.QueryRow(getByFirstnameQuery, firstname)
+
+	var user model.User
+
+	if err := row.Scan(&user.ID, &user.Firstname, &user.Lastname, &user.Email, &user.Age, &user.Height, &user.Active, &user.CreatedDate); err != nil {
+		log.Error(err)
+		return model.User{}, errors.New(message.UserNotFound)
+	}
+	return user, nil
 }
 
 func (r *repositoryDB) Delete(id int) error {

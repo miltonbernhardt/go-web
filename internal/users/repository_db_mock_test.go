@@ -2,8 +2,10 @@ package users
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/miltonbernhardt/go-web/internal/model"
+	"github.com/miltonbernhardt/go-web/pkg/message"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -34,6 +36,55 @@ func Test_DB_Mock_GetAll_Success(t *testing.T) {
 }
 
 func Test_DB_Mock_GetAll_Fail(t *testing.T) {
+	db, _, _ := sqlmock.New()
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	repository := NewRepository(db)
+	actualSections, err := repository.GetAll()
+	assert.Error(t, err)
+	assert.Nil(t, actualSections)
+}
+
+func Test_DB_Mock_GetByFirstname_Success(t *testing.T) {
+	query := `SELECT id, firstname, lastname, email, age, height, active, created_at FROM users WHERE firstname = \?`
+	db, mockDB, _ := sqlmock.New()
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	expectedSection := model.User{ID: 1, Firstname: "firstname1", Lastname: "lastname1", Email: "email1", Age: 24, Height: 184, Active: true, CreatedDate: "22/02/2021"}
+
+	rows := mockDB.
+		NewRows([]string{"id", "firstname", "lastname", "email", "age", "height", "active", "created_date"}).
+		AddRow(1, "firstname1", "lastname1", "email1", 24, 184, true, "22/02/2021")
+	mockDB.ExpectQuery(query).WillReturnRows(rows)
+
+	repository := NewRepository(db)
+	actualSection, err := repository.GetByFirstname("firstname1")
+	assert.Nil(t, err)
+	assert.Equal(t, expectedSection, actualSection)
+}
+
+func Test_DB_Mock_GetByFirstname_Fail(t *testing.T) {
+	query := `SELECT id, firstname, lastname, email, age, height, active, created_at FROM users WHERE firstname = \?`
+	db, mockDB, _ := sqlmock.New()
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	rows := mockDB.
+		NewRows([]string{"id", "firstname", "lastname", "email", "age", "height", "active", "created_date"})
+	mockDB.ExpectQuery(query).WillReturnRows(rows)
+
+	repository := NewRepository(db)
+	actualSection, err := repository.GetByFirstname("firstname1")
+	assert.Equal(t, errors.New(message.UserNotFound), err)
+	assert.Equal(t, model.User{}, actualSection)
+}
+
+func Test_DB_Mock__GetByFirstname_Fail(t *testing.T) {
 	db, _, _ := sqlmock.New()
 	defer func(db *sql.DB) {
 		_ = db.Close()

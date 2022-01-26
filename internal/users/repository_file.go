@@ -34,6 +34,22 @@ func (r *repositoryFile) GetAll() (users []model.User, err error) {
 	return users, nil
 }
 
+func (r *repositoryFile) GetByFirstname(firstname string) (model.User, error) {
+	allUsers, err := r.GetAll()
+
+	if err != nil {
+		return model.User{}, err
+	}
+
+	for i := range allUsers {
+		if allUsers[i].Firstname == firstname {
+			return allUsers[i], nil
+		}
+	}
+
+	return model.User{}, errors.New("user not found")
+}
+
 func (r *repositoryFile) Delete(id int) error {
 	allUsers, err := r.GetAll()
 

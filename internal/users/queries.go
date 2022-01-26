@@ -3,6 +3,7 @@ package users
 const (
 	deleteQuery                = "DELETE FROM users WHERE id = ?"
 	getAllQuery                = "SELECT id, firstname, lastname, email, age, height, active, created_at FROM users"
+	getByFirstnameQuery        = "SELECT id, firstname, lastname, email, age, height, active, created_at FROM users WHERE firstname = ?"
 	updateQuery                = "UPDATE users SET firstname = ?, lastname = ?, email = ?, age = ?, height = ?, active = ?, created_at = ? WHERE id = ?"
 	updateUserAgeLastnameQuery = "UPDATE users SET lastname = ?, age = ? WHERE id = ?"
 	updateUserFirstnameQuery   = "UPDATE users SET firstname = ? WHERE id = ?"
