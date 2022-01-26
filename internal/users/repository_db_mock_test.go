@@ -169,12 +169,14 @@ func Test_DB_Mock_UpdateUserAgeLastname_Fail_Prepare(t *testing.T) {
 }
 
 func Test_DB_Mock_UpdateUserAgeLastname_Fail_Exec(t *testing.T) {
+	query := `UPDATE users SET lastname = \?, age = \? WHERE id = \?`
+
 	db, mockDB, _ := sqlmock.New()
 	defer func(db *sql.DB) {
 		_ = db.Close()
 	}(db)
 
-	mockDB.ExpectPrepare(updateUserAgeLastnameQuery)
+	mockDB.ExpectPrepare(query)
 
 	repository := NewRepository(db)
 	err := repository.UpdateUserAgeLastname(1, "lastname", 24)
@@ -214,12 +216,14 @@ func Test_DB_Mock_UpdateUserFirstname_Fail_Prepare(t *testing.T) {
 }
 
 func Test_DB_Mock_UpdateUserFirstname_Fail_Exec(t *testing.T) {
+	query := `UPDATE users SET firstname = \? WHERE id = \?`
+
 	db, mockDB, _ := sqlmock.New()
 	defer func(db *sql.DB) {
 		_ = db.Close()
 	}(db)
 
-	mockDB.ExpectPrepare(updateUserFirstnameQuery)
+	mockDB.ExpectPrepare(query)
 
 	repository := NewRepository(db)
 	err := repository.UpdateUserFirstname(1, "firstname")

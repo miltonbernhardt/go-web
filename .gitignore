@@ -4,4 +4,4 @@
 users-db.json
 logs.log
 logging.log
-.coverage
+/coverage.out
