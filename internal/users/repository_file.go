@@ -3,8 +3,8 @@ package users
 import (
 	"errors"
 	"github.com/miltonbernhardt/go-web/internal/model"
+	"github.com/miltonbernhardt/go-web/pkg/message"
 	"github.com/miltonbernhardt/go-web/pkg/store"
-	"github.com/miltonbernhardt/go-web/pkg/web"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -51,7 +51,7 @@ func (r *repositoryFile) Delete(id int) error {
 	}
 
 	if index == -1 {
-		return errors.New(web.UserNotFound)
+		return errors.New(message.UserNotFound)
 	} else {
 		allUsers = append(allUsers[:index], allUsers[index+1:]...)
 		err = r.db.Write(&allUsers)
@@ -85,7 +85,7 @@ func (r *repositoryFile) Update(id int, userToUpdate model.User) (model.User, er
 	}
 
 	if user.ID == 0 {
-		return model.User{}, errors.New(web.UserNotFound)
+		return model.User{}, errors.New(message.UserNotFound)
 	}
 
 	err = r.db.Write(allUsers)
@@ -114,7 +114,7 @@ func (r *repositoryFile) UpdateName(id int, name string) (model.User, error) {
 	}
 
 	if !updated {
-		return model.User{}, errors.New(web.UserNotFound)
+		return model.User{}, errors.New(message.UserNotFound)
 	}
 	if err := r.db.Write(allUsers); err != nil {
 		return model.User{}, err
@@ -144,7 +144,7 @@ func (r *repositoryFile) UpdateUser(id int, lastname string, age int) (model.Use
 	}
 
 	if user.ID == 0 {
-		return model.User{}, errors.New(web.UserNotFound)
+		return model.User{}, errors.New(message.UserNotFound)
 	}
 
 	err = r.db.Write(&allUsers)

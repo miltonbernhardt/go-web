@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/miltonbernhardt/go-web/internal/model"
 	"github.com/miltonbernhardt/go-web/internal/utils"
-	"github.com/miltonbernhardt/go-web/pkg/web"
+	"github.com/miltonbernhardt/go-web/pkg/message"
 	"reflect"
 	"strings"
 )
@@ -49,7 +49,7 @@ func (s *service) GetByID(id int) (model.User, error) {
 		}
 	}
 
-	return model.User{}, errors.New(web.UserNotFound)
+	return model.User{}, errors.New(message.UserNotFound)
 }
 
 func (s *service) GetAllWithFilters(users []model.User, fieldType model.UserTypes, value interface{}) []model.User {

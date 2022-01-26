@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/miltonbernhardt/go-web/pkg/message"
 	"net/http"
 	"strings"
 )
@@ -41,7 +42,7 @@ func Error(c *gin.Context, status int, format string, args ...interface{}) {
 func ValidationError(c *gin.Context, status int, err error) {
 	errorResponse := ErrorResponse{
 		Code:    StatusMsg(status),
-		Message: InvalidFields,
+		Message: message.InvalidFields,
 		Fields:  printValidationError(err),
 		Status:  status,
 	}
@@ -64,7 +65,7 @@ func printValidationError(err error) interface{} {
 				validationError{
 					Field:   f.Field(),
 					Tag:     f.Tag(),
-					Message: FieldMissing,
+					Message: message.FieldMissing,
 				},
 			)
 		}

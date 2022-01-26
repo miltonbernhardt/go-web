@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/miltonbernhardt/go-web/internal/model"
 	"github.com/miltonbernhardt/go-web/internal/users"
+	"github.com/miltonbernhardt/go-web/pkg/message"
 	"github.com/miltonbernhardt/go-web/pkg/web"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -49,7 +50,7 @@ func (c *user) GetAll() gin.HandlerFunc {
 
 		if err != nil {
 			log.Error(err)
-			web.Error(ctx, http.StatusInternalServerError, web.InternalError)
+			web.Error(ctx, http.StatusInternalServerError, message.InternalError)
 			return
 		}
 
@@ -198,7 +199,7 @@ func (c *user) Delete() gin.HandlerFunc {
 		log.WithFields(log.Fields{
 			"user_id": id,
 		}).Info("success delete user")
-		web.Success(ctx, http.StatusOK, web.UserDeleted)
+		web.Success(ctx, http.StatusOK, message.UserDeleted)
 	}
 }
 
@@ -235,7 +236,7 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 		err := json.Unmarshal(bodyAsByteArray, &fields)
 		if err != nil || (fields.Lastname == "" && fields.Age == 0) {
 			log.Info("error: bad request for update fields")
-			web.Error(ctx, http.StatusBadRequest, web.UserInvalidUpdate)
+			web.Error(ctx, http.StatusBadRequest, message.UserInvalidUpdate)
 			return
 		}
 
@@ -256,7 +257,7 @@ func (c *user) getIdFromParams(ctx *gin.Context) (int, bool) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		log.Info("error: invalid ID")
-		web.Error(ctx, http.StatusBadRequest, web.InvalidID)
+		web.Error(ctx, http.StatusBadRequest, message.InvalidID)
 		return 0, true
 	}
 	return id, false
@@ -264,7 +265,7 @@ func (c *user) getIdFromParams(ctx *gin.Context) (int, bool) {
 
 func (c *user) ValidateToken(ctx *gin.Context) {
 	if !(ctx.GetHeader("token") != "" && os.Getenv("TOKEN") != "" && ctx.GetHeader("token") == os.Getenv("TOKEN")) {
-		web.Error(ctx, http.StatusUnauthorized, web.UnauthorizedAction)
+		web.Error(ctx, http.StatusUnauthorized, message.UnauthorizedAction)
 		log.Info(http.StatusUnauthorized, "invalid token")
 		ctx.Abort()
 		return
@@ -319,13 +320,13 @@ func (c *user) getUsersByFilters(ctx *gin.Context) ([]model.User, error) {
 
 func (c *user) checkError(ctx *gin.Context, err error) bool {
 	if err != nil {
-		if err.Error() == web.UserNotFound {
+		if err.Error() == message.UserNotFound {
 			log.Info(err)
-			web.Error(ctx, http.StatusNotFound, web.UserNotFound)
+			web.Error(ctx, http.StatusNotFound, message.UserNotFound)
 			return true
 		} else {
 			log.Error(err)
-			web.Error(ctx, http.StatusInternalServerError, web.InternalError)
+			web.Error(ctx, http.StatusInternalServerError, message.InternalError)
 			return true
 		}
 	}

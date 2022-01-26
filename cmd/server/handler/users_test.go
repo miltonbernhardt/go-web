@@ -7,6 +7,7 @@ import (
 	"github.com/miltonbernhardt/go-web/internal/model"
 	"github.com/miltonbernhardt/go-web/internal/users"
 	"github.com/miltonbernhardt/go-web/internal/utils"
+	"github.com/miltonbernhardt/go-web/pkg/message"
 	"github.com/miltonbernhardt/go-web/pkg/store"
 	"github.com/miltonbernhardt/go-web/pkg/web"
 	log "github.com/sirupsen/logrus"
@@ -158,7 +159,7 @@ func Test_GetAll_AuthorizationTokenMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnauthorized), objReq.Code)
-	assert.Equal(t, web.UnauthorizedAction, objReq.Message)
+	assert.Equal(t, message.UnauthorizedAction, objReq.Message)
 }
 
 func Test_GetAll_InternalError(t *testing.T) {
@@ -172,7 +173,7 @@ func Test_GetAll_InternalError(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusInternalServerError), objReq.Code)
-	assert.Equal(t, web.InternalError, objReq.Message)
+	assert.Equal(t, message.InternalError, objReq.Message)
 }
 
 func Test_GetAll_OK(t *testing.T) {
@@ -388,7 +389,7 @@ func Test_GetByID_AuthorizationTokenMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnauthorized), objReq.Code)
-	assert.Equal(t, web.UnauthorizedAction, objReq.Message)
+	assert.Equal(t, message.UnauthorizedAction, objReq.Message)
 }
 
 func Test_GetByID_InternalError(t *testing.T) {
@@ -402,7 +403,7 @@ func Test_GetByID_InternalError(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusInternalServerError), objReq.Code)
-	assert.Equal(t, web.InternalError, objReq.Message)
+	assert.Equal(t, message.InternalError, objReq.Message)
 }
 
 func Test_GetByID_NotFound(t *testing.T) {
@@ -416,7 +417,7 @@ func Test_GetByID_NotFound(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusNotFound), objReq.Code)
-	assert.Equal(t, web.UserNotFound, objReq.Message)
+	assert.Equal(t, message.UserNotFound, objReq.Message)
 }
 
 func Test_GetByID_InvalidID(t *testing.T) {
@@ -430,7 +431,7 @@ func Test_GetByID_InvalidID(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusBadRequest), objReq.Code)
-	assert.Equal(t, web.InvalidID, objReq.Message)
+	assert.Equal(t, message.InvalidID, objReq.Message)
 }
 
 func Test_GetByID_OK(t *testing.T) {
@@ -473,7 +474,7 @@ func Test_Store_AuthorizationTokenMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnauthorized), objReq.Code)
-	assert.Equal(t, web.UnauthorizedAction, objReq.Message)
+	assert.Equal(t, message.UnauthorizedAction, objReq.Message)
 }
 
 func Test_Store_InternalError(t *testing.T) {
@@ -494,7 +495,7 @@ func Test_Store_InternalError(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusInternalServerError), objReq.Code)
-	assert.Equal(t, web.InternalError, objReq.Message)
+	assert.Equal(t, message.InternalError, objReq.Message)
 }
 
 func Test_Store_UnprocessableEntity_FirstnameMissing(t *testing.T) {
@@ -514,7 +515,7 @@ func Test_Store_UnprocessableEntity_FirstnameMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Firstname", objReq.Fields[0].Field)
 }
@@ -536,7 +537,7 @@ func Test_Store_UnprocessableEntity_LastnameMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Lastname", objReq.Fields[0].Field)
 }
@@ -558,7 +559,7 @@ func Test_Store_UnprocessableEntity_EmailMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Email", objReq.Fields[0].Field)
 }
@@ -580,7 +581,7 @@ func Test_Store_UnprocessableEntity_AgeMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Age", objReq.Fields[0].Field)
 }
@@ -602,7 +603,7 @@ func Test_Store_UnprocessableEntity_HeightMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Height", objReq.Fields[0].Field)
 }
@@ -623,7 +624,7 @@ func Test_Store_UnprocessableEntity_TwoFieldsMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 2, len(objReq.Fields))
 	assert.Equal(t, "Age", objReq.Fields[0].Field)
 	assert.Equal(t, "Height", objReq.Fields[1].Field)
@@ -644,7 +645,7 @@ func Test_Store_UnprocessableEntity_ThreeFieldsMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 3, len(objReq.Fields))
 	assert.Equal(t, "Email", objReq.Fields[0].Field)
 	assert.Equal(t, "Age", objReq.Fields[1].Field)
@@ -665,7 +666,7 @@ func Test_Store_UnprocessableEntity_FourFieldsMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 4, len(objReq.Fields))
 	assert.Equal(t, "Firstname", objReq.Fields[0].Field)
 	assert.Equal(t, "Lastname", objReq.Fields[1].Field)
@@ -686,7 +687,7 @@ func Test_Store_UnprocessableEntity_FiveFieldsMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 5, len(objReq.Fields))
 	assert.Equal(t, "Firstname", objReq.Fields[0].Field)
 	assert.Equal(t, "Lastname", objReq.Fields[1].Field)
@@ -742,7 +743,7 @@ func Test_Update_AuthorizationTokenMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnauthorized), objReq.Code)
-	assert.Equal(t, web.UnauthorizedAction, objReq.Message)
+	assert.Equal(t, message.UnauthorizedAction, objReq.Message)
 }
 
 func Test_Update_InternalError(t *testing.T) {
@@ -763,7 +764,7 @@ func Test_Update_InternalError(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusInternalServerError), objReq.Code)
-	assert.Equal(t, web.InternalError, objReq.Message)
+	assert.Equal(t, message.InternalError, objReq.Message)
 }
 
 func Test_Update_NotFound(t *testing.T) {
@@ -785,7 +786,7 @@ func Test_Update_NotFound(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusNotFound), objReq.Code)
-	assert.Equal(t, web.UserNotFound, objReq.Message)
+	assert.Equal(t, message.UserNotFound, objReq.Message)
 }
 
 func Test_Update_InvalidID(t *testing.T) {
@@ -807,7 +808,7 @@ func Test_Update_InvalidID(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusBadRequest), objReq.Code)
-	assert.Equal(t, web.InvalidID, objReq.Message)
+	assert.Equal(t, message.InvalidID, objReq.Message)
 }
 
 func Test_Update_UnprocessableEntity_FirstnameMissing(t *testing.T) {
@@ -827,7 +828,7 @@ func Test_Update_UnprocessableEntity_FirstnameMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Firstname", objReq.Fields[0].Field)
 }
@@ -849,7 +850,7 @@ func Test_Update_UnprocessableEntity_LastnameMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Lastname", objReq.Fields[0].Field)
 }
@@ -871,7 +872,7 @@ func Test_Update_UnprocessableEntity_EmailMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Email", objReq.Fields[0].Field)
 }
@@ -893,7 +894,7 @@ func Test_Update_UnprocessableEntity_AgeMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Age", objReq.Fields[0].Field)
 }
@@ -915,7 +916,7 @@ func Test_Update_UnprocessableEntity_HeightMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 1, len(objReq.Fields))
 	assert.Equal(t, "Height", objReq.Fields[0].Field)
 }
@@ -936,7 +937,7 @@ func Test_Update_UnprocessableEntity_TwoFieldsMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 2, len(objReq.Fields))
 	assert.Equal(t, "Age", objReq.Fields[0].Field)
 	assert.Equal(t, "Height", objReq.Fields[1].Field)
@@ -957,7 +958,7 @@ func Test_Update_UnprocessableEntity_ThreeFieldsMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 3, len(objReq.Fields))
 	assert.Equal(t, "Email", objReq.Fields[0].Field)
 	assert.Equal(t, "Age", objReq.Fields[1].Field)
@@ -978,7 +979,7 @@ func Test_Update_UnprocessableEntity_FourFieldsMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 4, len(objReq.Fields))
 	assert.Equal(t, "Firstname", objReq.Fields[0].Field)
 	assert.Equal(t, "Lastname", objReq.Fields[1].Field)
@@ -999,7 +1000,7 @@ func Test_Update_UnprocessableEntity_FiveFieldsMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnprocessableEntity), objReq.Code)
-	assert.Equal(t, web.InvalidFields, objReq.Message)
+	assert.Equal(t, message.InvalidFields, objReq.Message)
 	assert.Equal(t, 5, len(objReq.Fields))
 	assert.Equal(t, "Firstname", objReq.Fields[0].Field)
 	assert.Equal(t, "Lastname", objReq.Fields[1].Field)
@@ -1048,7 +1049,7 @@ func Test_Delete_AuthorizationTokenMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnauthorized), objReq.Code)
-	assert.Equal(t, web.UnauthorizedAction, objReq.Message)
+	assert.Equal(t, message.UnauthorizedAction, objReq.Message)
 }
 
 func Test_Delete_InternalError(t *testing.T) {
@@ -1062,7 +1063,7 @@ func Test_Delete_InternalError(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusInternalServerError), objReq.Code)
-	assert.Equal(t, web.InternalError, objReq.Message)
+	assert.Equal(t, message.InternalError, objReq.Message)
 }
 
 func Test_Delete_NotFound(t *testing.T) {
@@ -1076,7 +1077,7 @@ func Test_Delete_NotFound(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusNotFound), objReq.Code)
-	assert.Equal(t, web.UserNotFound, objReq.Message)
+	assert.Equal(t, message.UserNotFound, objReq.Message)
 }
 
 func Test_Delete_InvalidID(t *testing.T) {
@@ -1090,7 +1091,7 @@ func Test_Delete_InvalidID(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusBadRequest), objReq.Code)
-	assert.Equal(t, web.InvalidID, objReq.Message)
+	assert.Equal(t, message.InvalidID, objReq.Message)
 }
 
 func Test_Delete_OK(t *testing.T) {
@@ -1106,7 +1107,7 @@ func Test_Delete_OK(t *testing.T) {
 
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
-	assert.Equal(t, web.UserDeleted, objReq.Data)
+	assert.Equal(t, message.UserDeleted, objReq.Data)
 }
 
 /*************************** UPDATE FIELDS ***************************/
@@ -1125,7 +1126,7 @@ func Test_UpdateFields_AuthorizationTokenMissing(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusUnauthorized), objReq.Code)
-	assert.Equal(t, web.UnauthorizedAction, objReq.Message)
+	assert.Equal(t, message.UnauthorizedAction, objReq.Message)
 }
 
 func Test_UpdateFields_InternalError(t *testing.T) {
@@ -1142,7 +1143,7 @@ func Test_UpdateFields_InternalError(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusInternalServerError), objReq.Code)
-	assert.Equal(t, web.InternalError, objReq.Message)
+	assert.Equal(t, message.InternalError, objReq.Message)
 }
 
 func Test_UpdateFields_NotFound(t *testing.T) {
@@ -1159,7 +1160,7 @@ func Test_UpdateFields_NotFound(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusNotFound), objReq.Code)
-	assert.Equal(t, web.UserNotFound, objReq.Message)
+	assert.Equal(t, message.UserNotFound, objReq.Message)
 }
 
 func Test_UpdateFields_BadRequest(t *testing.T) {
@@ -1176,7 +1177,7 @@ func Test_UpdateFields_BadRequest(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusBadRequest), objReq.Code)
-	assert.Equal(t, web.UserInvalidUpdate, objReq.Message)
+	assert.Equal(t, message.UserInvalidUpdate, objReq.Message)
 }
 
 func Test_UpdateFields_InvalidID(t *testing.T) {
@@ -1193,7 +1194,7 @@ func Test_UpdateFields_InvalidID(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &objReq)
 	assert.Nil(t, err)
 	assert.Equal(t, web.StatusMsg(http.StatusBadRequest), objReq.Code)
-	assert.Equal(t, web.InvalidID, objReq.Message)
+	assert.Equal(t, message.InvalidID, objReq.Message)
 }
 
 func Test_UpdateFields_OK(t *testing.T) {

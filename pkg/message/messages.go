@@ -1,4 +1,4 @@
-package web
+package message
 
 const (
 	FieldMissing       = "field is missing"

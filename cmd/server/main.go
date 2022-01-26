@@ -9,8 +9,8 @@ import (
 	"github.com/miltonbernhardt/go-web/docs"
 	"github.com/miltonbernhardt/go-web/internal/users"
 	"github.com/miltonbernhardt/go-web/internal/utils"
+	"github.com/miltonbernhardt/go-web/pkg/message"
 	"github.com/miltonbernhardt/go-web/pkg/store"
-	"github.com/miltonbernhardt/go-web/pkg/web"
 	log "github.com/sirupsen/logrus"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
@@ -52,10 +52,9 @@ func main() {
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 
 	ip := os.Getenv("IP_ADDRESS")
-	err = r.Run(ip) // listen and serve on 0. 0.0.0:8080 | "localhost:8080"
 
-	if err != nil {
-		log.Fatal(err)
+	if err = r.Run(ip); err != nil {
+		panic(err)
 	}
 
 	log.Info("server started at ", ip)
@@ -76,7 +75,7 @@ func loadRoutes(r *gin.Engine, userController handler.UserController) {
 func loadEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(web.FailedToLoadEnv)
+		log.Fatal(message.FailedToLoadEnv)
 	}
 }
 
