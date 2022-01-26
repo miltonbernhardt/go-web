@@ -240,7 +240,7 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 			return
 		}
 
-		user, err := c.service.UpdateFields(id, fields.Lastname, fields.Age)
+		err = c.service.UpdateFields(id, fields.Lastname, fields.Age)
 
 		if c.checkError(ctx, err) {
 			return
@@ -249,7 +249,7 @@ func (c *user) UpdateFields() gin.HandlerFunc {
 		log.WithFields(log.Fields{
 			"user_id": id,
 		}).Info("success update fields user")
-		web.Success(ctx, http.StatusOK, user)
+		web.Success(ctx, http.StatusOK, "")
 	}
 }
 

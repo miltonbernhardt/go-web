@@ -15,7 +15,7 @@ type Service interface {
 	GetAllWithFilters(users []model.User, attribute model.UserTypes, value interface{}) []model.User
 	GetByID(id int) (model.User, error)
 	Store(user model.User) (model.User, error)
-	UpdateFields(id int, lastname string, age int) (model.User, error)
+	UpdateFields(id int, lastname string, age int) error
 	Update(id int, user model.User) (model.User, error)
 }
 type service struct {
@@ -108,6 +108,6 @@ func (s *service) Delete(id int) error {
 
 /*####################### PATCH #######################*/
 
-func (s *service) UpdateFields(id int, lastname string, age int) (model.User, error) {
+func (s *service) UpdateFields(id int, lastname string, age int) error {
 	return s.repository.UpdateUser(id, lastname, age)
 }

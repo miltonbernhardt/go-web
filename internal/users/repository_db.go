@@ -11,8 +11,8 @@ type Repository interface {
 	GetAll() ([]model.User, error)
 	Store(user model.User) (model.User, error)
 	Update(id int, user model.User) (model.User, error)
-	UpdateName(id int, name string) (model.User, error)
-	UpdateUser(id int, lastname string, age int) (model.User, error)
+	UpdateName(id int, name string) error
+	UpdateUser(id int, lastname string, age int) error
 }
 
 type repositoryDB struct {
@@ -33,16 +33,29 @@ func (r *repositoryDB) Delete(id int) error {
 	return nil
 }
 
-func (r *repositoryDB) Update(id int, userToUpdate model.User) (model.User, error) {
-	return model.User{}, nil
+func (r *repositoryDB) Update(id int, user model.User) (model.User, error) {
+	return user, nil
 }
 
-func (r *repositoryDB) UpdateName(id int, name string) (model.User, error) {
-	return model.User{}, nil
+func (r *repositoryDB) UpdateName(id int, name string) error {
+	return nil
 }
 
-func (r *repositoryDB) UpdateUser(id int, lastname string, age int) (model.User, error) {
-	return model.User{}, nil
+func (r *repositoryDB) UpdateUser(id int, lastname string, age int) error {
+	stmt, err := r.db.Prepare("UPDATE users SET lastname = ?, age = ? WHERE id = ?")
+	if err != nil {
+		log.Error(err)
+	}
+	defer func(stmt *sql.Stmt) {
+		_ = stmt.Close()
+	}(stmt)
+
+	_, err = stmt.Exec(lastname, age, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *repositoryDB) Store(user model.User) (model.User, error) {
@@ -61,8 +74,4 @@ func (r *repositoryDB) Store(user model.User) (model.User, error) {
 	insertedId, _ := result.LastInsertId()
 	user.ID = int(insertedId)
 	return user, nil
-}
-
-func (r *repositoryDB) getUserLastID() (int, error) {
-	return 0, nil
 }

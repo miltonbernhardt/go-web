@@ -43,11 +43,6 @@ func (r *repositoryMock) Store(user model.User) (model.User, error) {
 	return args.Get(0).(model.User), args.Error(1)
 }
 
-func (r *repositoryMock) getUserLastID() (int, error) {
-	args := r.Called()
-	return args.Get(0).(int), args.Error(1)
-}
-
 func Test_DB_GetAll_Success(t *testing.T) {
 	db, mockDB, _ := sqlmock.New()
 	defer func(db *sql.DB) {

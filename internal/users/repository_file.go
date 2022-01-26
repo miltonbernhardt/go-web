@@ -96,36 +96,34 @@ func (r *repositoryFile) Update(id int, userToUpdate model.User) (model.User, er
 	return user, nil
 }
 
-func (r *repositoryFile) UpdateName(id int, name string) (model.User, error) {
+func (r *repositoryFile) UpdateName(id int, name string) error {
 	allUsers, err := r.GetAll()
 	if err != nil {
-		return model.User{}, err
+		return err
 	}
 
-	var p model.User
 	updated := false
 
 	for i := range allUsers {
 		if allUsers[i].ID == id {
 			allUsers[i].Firstname = name
 			updated = true
-			p = allUsers[i]
 		}
 	}
 
 	if !updated {
-		return model.User{}, errors.New(message.UserNotFound)
+		return errors.New(message.UserNotFound)
 	}
 	if err := r.db.Write(allUsers); err != nil {
-		return model.User{}, err
+		return err
 	}
-	return p, nil
+	return nil
 }
 
-func (r *repositoryFile) UpdateUser(id int, lastname string, age int) (model.User, error) {
+func (r *repositoryFile) UpdateUser(id int, lastname string, age int) error {
 	allUsers, err := r.GetAll()
 	if err != nil {
-		return model.User{}, err
+		return err
 	}
 
 	user := model.User{}
@@ -144,15 +142,15 @@ func (r *repositoryFile) UpdateUser(id int, lastname string, age int) (model.Use
 	}
 
 	if user.ID == 0 {
-		return model.User{}, errors.New(message.UserNotFound)
+		return errors.New(message.UserNotFound)
 	}
 
 	err = r.db.Write(&allUsers)
 	if err != nil {
-		return model.User{}, err
+		return err
 	}
 
-	return user, nil
+	return nil
 }
 
 func (r *repositoryFile) Store(user model.User) (model.User, error) {
